@@ -8,13 +8,15 @@ typedef struct TSMS_GUI_ELEMENT tGuiElement;
 typedef tGuiElement * pGuiElement;
 
 #include "tsms_def.h"
+#include "tsms_gui_style.h"
 
-typedef TSMS_RESULT (*TSMS_GUI_RENDER_FUNCTION)(pGuiElement element);
+typedef TSMS_RESULT (*TSMS_GUI_RENDER_FUNCTION)(pGuiElement element, uint16_t x, uint16_t y);
 
 struct TSMS_GUI {
 	TSMS_GUI_RENDER_FUNCTION render;
 	pGuiElement parent;
 	TSMS_LP children;
+	TSMS_STYLE style;
 	TSMS_DPHP display;
 };
 
@@ -22,6 +24,7 @@ struct TSMS_GUI_ELEMENT {
 	TSMS_GUI_RENDER_FUNCTION render;
 	pGuiElement parent;
 	TSMS_LP children;
+	TSMS_STYLE style;
 };
 
 pGui TSMS_GUI_create(TSMS_DPHP display);

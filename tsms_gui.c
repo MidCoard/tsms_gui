@@ -2,14 +2,22 @@
 #include "tsms_display.h"
 #include "tsms_list.h"
 
-TSMS_INLINE TSMS_RESULT __tsms_internal_default_render(pGuiElement element) {
+TSMS_INLINE TSMS_RESULT __tsms_internal_default_render(pGuiElement element, uint16_t x, uint16_t y) {
+
 	if (element->children != TSMS_NULL)
 		for (TSMS_POS i = 0; i < element->children->length; i++) {
 			pGuiElement child = element->children->list[i];
 			if (child->render != TSMS_NULL)
-				child->render(child);
+				child->render(child, );
 		}
+
 	return TSMS_SUCCESS;
+}
+
+TSMS_INLINE TSMS_RESULT __tsms_internal_request_render(pGuiElement element) {
+	if (element->children != TSMS_NULL) {
+
+	}
 }
 
 pGui TSMS_GUI_create(TSMS_DPHP display) {
@@ -39,5 +47,6 @@ TSMS_RESULT TSMS_GUI_add(pGui gui, pGuiElement element) {
 TSMS_RESULT TSMS_GUI_draw(pGui gui) {
 	if (gui == TSMS_NULL)
 		return TSMS_ERROR;
-	return TSMS_DISPLAY_request(gui->display);
+	TSMS_RESULT result = TSMS_DISPLAY_request(gui->display);
+	if (gui->request)
 }
