@@ -48,6 +48,5 @@ typedef struct {
 
 extern TSMS_STYLE TSMS_STYLE_DEFAULT;
 
-TSMS_RESULT TSMS_GUI_STYLE_init();
 
 #endif //TSMS_GUI_STYLE_H
