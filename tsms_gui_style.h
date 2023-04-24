@@ -7,11 +7,12 @@ typedef enum {
 	TSMS_STYLE_POSITION_RELATIVE, TSMS_STYLE_POSITION_ABSOLUTE
 } TSMS_STYLE_POSITION;
 
-#include "tsms_util.h"
-
 typedef enum {
 	TSMS_GRID_TYPE_DEFAULT
 } TSMS_GRID_TYPE;
+
+#include "tsms_util.h"
+#include "tsms_font.h"
 
 typedef struct {
 	uint16_t top;

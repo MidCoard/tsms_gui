@@ -7,7 +7,7 @@
 
 TSMS_GRID_INFO TSMS_GUI_INVALID_GRID = {TSMS_STYLE_AUTO, TSMS_STYLE_AUTO, TSMS_STYLE_AUTO, TSMS_STYLE_AUTO, 0};
 
-TSMS_INLINE int __tsms_internal_compare_grid_render_info(void * a, void * b) {
+TSMS_INLINE long __tsms_internal_compare_grid_render_info(void * a, void * b) {
 	pGuiElement element1 = (pGuiElement) a;
 	pGuiElement element2 = (pGuiElement) b;
 	if (element1->requestRender != element2->requestRender)

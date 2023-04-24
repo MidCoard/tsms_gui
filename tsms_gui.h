@@ -23,6 +23,7 @@ typedef tGuiElement * pGuiElement;
 
 #include "tsms_def.h"
 #include "tsms_gui_style.h"
+#include "tsms_lock.h"
 
 typedef TSMS_RESULT (*TSMS_GUI_RENDER_FUNCTION)(pGuiElement element);
 

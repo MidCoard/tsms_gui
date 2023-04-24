@@ -13,7 +13,7 @@ TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, 
 	uint16_t currentColumnHeight = 0;
 	for (TSMS_POS i = 0; i < t->length; i++) {
 		TSMS_FONT_DATA font = TSMS_FONT_resolve(text->style.font.type, text->style.font.font, t->cStr[i]);
-		if (font.type == TSMS_INVALID_FONT)
+		if (font.type == TSMS_FONT_TYPE_INVALID)
 			return element->grid = TSMS_GUI_calcGrid(element, x, y, 0, 0, parentWidth, parentHeight);
 		uint16_t width = font.width * text->style.font.size;
 		uint16_t height = font.height * text->style.font.size;
@@ -47,7 +47,7 @@ TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element) {
 	// TODO: add cache
 	for (TSMS_POS i = 0; i < t->length;i++) {
 		TSMS_FONT_DATA font = TSMS_FONT_resolve(text->style.font.type, text->style.font.font, t->cStr[i]);
-		if (font.type == TSMS_INVALID_FONT)
+		if (font.type == TSMS_FONT_TYPE_INVALID)
 			return TSMS_SUCCESS;
 		uint16_t width = font.width * text->style.font.size;
 		uint16_t height = font.height * text->style.font.size;
