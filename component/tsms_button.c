@@ -6,7 +6,7 @@ TSMS_INLINE TSMS_RESULT __tsms_internal_button_render(pGuiElement element, uint1
 		for (TSMS_POS i = 0; i < element->children->length; i++) {
 			pGuiElement child = element->children->list[i];
 			if (child->render != TSMS_NULL)
-				child->render(child);
+				child->render(child, x, y, x ,y);
 		}
 	return TSMS_SUCCESS;
 }

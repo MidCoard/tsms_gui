@@ -3,7 +3,15 @@
 
 #define TSMS_STYLE_AUTO 0xFFFF
 
+typedef enum {
+	TSMS_STYLE_POSITION_RELATIVE, TSMS_STYLE_POSITION_ABSOLUTE
+} TSMS_STYLE_POSITION;
+
 #include "tsms_util.h"
+
+typedef enum {
+	TSMS_GRID_TYPE_DEFAULT
+} TSMS_GRID_TYPE;
 
 typedef struct {
 	uint16_t top;
@@ -44,9 +52,22 @@ typedef struct {
 	uint16_t minWidth;
 	uint16_t minHeight;
 	TSMS_STYLE_FONT font;
+	TSMS_STYLE_POSITION position;
+	uint8_t zIndex;
+	uint16_t top;
+	uint16_t left;
+	TSMS_GRID_TYPE gridType;
 } TSMS_STYLE;
 
 extern TSMS_STYLE TSMS_STYLE_DEFAULT;
+
+uint16_t TSMS_STYLE_Y_ATTACHMENT(TSMS_STYLE style);
+
+uint16_t TSMS_STYLE_X_ATTACHMENT(TSMS_STYLE style);
+
+uint16_t TSMS_STYLE_getBoxWidth(TSMS_STYLE style, uint16_t width, uint16_t parentWidth);
+
+uint16_t TSMS_STYLE_getBoxHeight(TSMS_STYLE style, uint16_t height, uint16_t parentHeight);
 
 
 #endif //TSMS_GUI_STYLE_H
