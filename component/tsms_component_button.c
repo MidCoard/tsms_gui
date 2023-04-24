@@ -1,11 +1,6 @@
 #include "tsms_component_button.h"
 #include "tsms_list.h"
 
-TSMS_INLINE void __tsms_internal_button_callback(pMutable mutable, void * data, void * handler) {
-	pButton button = (pButton) handler;
-	button->requestRender = true;
-}
-
 pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text, TSMS_BUTTON_CALLBACK callback,
                                     void *handler) {
 	pButton button = (pButton) malloc(sizeof(tButton));
@@ -28,8 +23,6 @@ pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text, TSMS_BUTTON_CA
 	button->gui = TSMS_NULL;
 	button->level = 0;
 
-
-	TSMS_MUTABLE_setSetterCallback(text,__tsms_internal_button_callback, button);
 	button->text = text;
 	button->callback = callback;
 	button->handler = handler;

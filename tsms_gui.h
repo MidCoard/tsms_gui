@@ -37,7 +37,7 @@ typedef struct {
 
 extern TSMS_GRID_INFO TSMS_GUI_INVALID_GRID;
 
-typedef TSMS_GRID_INFO (*TSMS_GUI_PRE_RENDER_FUNCTION)(pGuiElement element, uint16_t x, uint16_t y, uint16_t totalWidth, uint16_t totalHeight);
+typedef TSMS_GRID_INFO (*TSMS_GUI_PRE_RENDER_FUNCTION)(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight);
 
 struct TSMS_GUI {
 	TSMS_EXTEND_GUI_ELEMENT
