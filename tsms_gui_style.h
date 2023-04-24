@@ -18,6 +18,7 @@ typedef struct {
 	uint16_t right;
 	uint16_t bottom;
 	uint16_t left;
+	TSMS_COLOR color;
 } TSMS_STYLE_MARGIN;
 
 typedef struct {
@@ -25,6 +26,7 @@ typedef struct {
 	uint16_t right;
 	uint16_t bottom;
 	uint16_t left;
+	TSMS_COLOR color;
 } TSMS_STYLE_PADDING;
 
 typedef struct {
@@ -32,18 +34,20 @@ typedef struct {
 	uint16_t right;
 	uint16_t bottom;
 	uint16_t left;
+	TSMS_COLOR color;
 } TSMS_STYLE_BORDER;
 
 typedef struct {
 	TSMS_FONT_TYPE type;
 	TSMS_FONT_SIZE size;
 	void * font;
+	TSMS_COLOR color;
 } TSMS_STYLE_FONT;
 
 typedef struct {
 	TSMS_STYLE_MARGIN margin;
-	TSMS_STYLE_PADDING padding;
 	TSMS_STYLE_BORDER border;
+	TSMS_STYLE_PADDING padding;
 	TSMS_COLOR backgroundColor;
 	uint16_t width;
 	uint16_t height;
@@ -61,6 +65,9 @@ typedef struct {
 
 extern TSMS_STYLE TSMS_STYLE_DEFAULT;
 
+extern TSMS_STYLE TSMS_STYLE_DEFAULT_BUTTON;
+
+
 uint16_t TSMS_STYLE_Y_ATTACHMENT(TSMS_STYLE style);
 
 uint16_t TSMS_STYLE_X_ATTACHMENT(TSMS_STYLE style);
@@ -69,5 +76,8 @@ uint16_t TSMS_STYLE_getBoxWidth(TSMS_STYLE style, uint16_t width, uint16_t paren
 
 uint16_t TSMS_STYLE_getBoxHeight(TSMS_STYLE style, uint16_t height, uint16_t parentHeight);
 
+uint16_t TSMS_STYLE_left(TSMS_STYLE style);
+
+uint16_t TSMS_STYLE_top(TSMS_STYLE style);
 
 #endif //TSMS_GUI_STYLE_H

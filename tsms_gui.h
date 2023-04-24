@@ -7,8 +7,9 @@
 	pGuiElement parent; \
 	TSMS_LP children; \
 	TSMS_STYLE style; \
-	TSMS_STYLE previousStyle; \
+	TSMS_STYLE lastStyle; \
 	bool requestRender; \
+	bool firstRender; \
 	TSMS_GRID_INFO grid; \
 	TSMS_GRID_INFO lastGrid; \
 	pGui gui; \
@@ -23,7 +24,7 @@ typedef tGuiElement * pGuiElement;
 #include "tsms_def.h"
 #include "tsms_gui_style.h"
 
-typedef TSMS_RESULT (*TSMS_GUI_RENDER_FUNCTION)(pGuiElement element, uint16_t x, uint16_t y, uint16_t totalWidth, uint16_t totalHeight);
+typedef TSMS_RESULT (*TSMS_GUI_RENDER_FUNCTION)(pGuiElement element);
 
 typedef struct {
 	uint16_t x;
@@ -61,5 +62,7 @@ pGui TSMS_GUI_create(TSMS_DPHP display);
 TSMS_RESULT TSMS_GUI_add(pGui gui, pGuiElement element);
 
 TSMS_RESULT TSMS_GUI_draw(pGui gui);
+
+TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element);
 
 #endif //TSMS_GUI_H

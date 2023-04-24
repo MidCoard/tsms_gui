@@ -15,6 +15,7 @@ struct TSMS_BUTTON {
 	pMutable text;
 	TSMS_BUTTON_CALLBACK callback;
 	void *handler;
+	bool press;
 };
 
 pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pMutable pMutable, TSMS_BUTTON_CALLBACK pFunction,
