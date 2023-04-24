@@ -4,7 +4,7 @@ pMutable TSMS_MUTABLE_create(void * data) {
 	pMutable mutable = (pMutable)malloc(sizeof(tMutable));
 	if (mutable == TSMS_NULL) {
 		tString temp = TSMS_STRING_temp("malloc failed for mutable");
-		TSMS_ERR_report(TSMS_ERR_MALLOC_FAILED, &temp);
+		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
 	mutable->data = data;

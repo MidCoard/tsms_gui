@@ -6,7 +6,7 @@ pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text, TSMS_BUTTON_CA
 	pButton button = (pButton) malloc(sizeof(tButton));
 	if (button == TSMS_NULL) {
 		tString temp = TSMS_STRING_temp("malloc failed for button");
-		TSMS_ERR_report(TSMS_ERR_MALLOC_FAILED, &temp);
+		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
 	button->preRender = TSMS_GUI_defaultPreRender;

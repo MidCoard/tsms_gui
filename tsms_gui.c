@@ -155,7 +155,7 @@ pGui TSMS_GUI_create(TSMS_DPHP display) {
 	pGui gui = (pGui) malloc(sizeof(tGui));
 	if (gui == TSMS_NULL) {
 		tString temp = TSMS_STRING_temp("malloc failed for gui");
-		TSMS_ERR_report(TSMS_ERR_MALLOC_FAILED, &temp);
+		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
 	gui->preRender = TSMS_GUI_defaultPreRender;

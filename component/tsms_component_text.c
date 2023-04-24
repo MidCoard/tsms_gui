@@ -81,7 +81,7 @@ pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pMutable text) {
 	pText t = (pText) malloc(sizeof(tText));
 	if (t == TSMS_NULL){
 		tString temp = TSMS_STRING_temp("malloc failed for text");
-		TSMS_ERR_report(TSMS_ERR_MALLOC_FAILED, &temp);
+		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
 	t->preRender = __tsms_internal_text_pre_render;
