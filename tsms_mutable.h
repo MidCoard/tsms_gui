@@ -1,13 +1,13 @@
 #ifndef TSMS_MUTABLE_H
 #define TSMS_MUTABLE_H
 
-#include "tsms_def.h"
-
 typedef struct TSMS_MUTABLE tMutable;
 typedef tMutable * pMutable;
 
 typedef void(*TSMS_MUTABLE_SETTER_CALLBACK)(pMutable, void *, void * handler);
 typedef void(*TSMS_MUTABLE_GETTER_CALLBACK)(pMutable, void * handler);
+
+#include "tsms_def.h"
 
 struct TSMS_MUTABLE {
 	void * data;

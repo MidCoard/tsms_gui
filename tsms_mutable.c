@@ -19,6 +19,7 @@ TSMS_RESULT TSMS_MUTABLE_set(pMutable mutable, void * data) {
 	if (mutable->data != data) {
 		if (mutable->setterCallback != TSMS_NULL)
 			mutable->setterCallback(mutable, data, mutable->setterHandler);
+		free(mutable->data);
 		mutable->data = data;
 	}
 	return TSMS_SUCCESS;

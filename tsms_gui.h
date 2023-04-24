@@ -22,11 +22,12 @@ typedef struct TSMS_GUI_ELEMENT tGuiElement;
 typedef tGuiElement * pGuiElement;
 
 #include "tsms_def.h"
+
+typedef TSMS_RESULT (*TSMS_GUI_RENDER_FUNCTION)(pGuiElement element);
+
 #include "tsms_gui_style.h"
 #include "tsms_lock.h"
 #include "tsms_display.h"
-
-typedef TSMS_RESULT (*TSMS_GUI_RENDER_FUNCTION)(pGuiElement element);
 
 typedef struct {
 	uint16_t x;
