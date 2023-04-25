@@ -2,14 +2,20 @@
 #define TSMS_GUI_STYLE_H
 
 #define TSMS_STYLE_AUTO 0xFFFF
+#define TSMS_STYLE_INHERIT 0xFFFE
+#define TSMS_STYLE_FONT_TYPE_INHERIT TSMS_FONT_TYPE_INVALID
+#define TSMS_STYLE_FONT_SIZE_INHERIT 0xFF
+#define TSMS_STYLE_FONT_INHERIT TSMS_NULL
 
 typedef enum {
-	TSMS_STYLE_POSITION_RELATIVE, TSMS_STYLE_POSITION_ABSOLUTE
+	TSMS_STYLE_POSITION_RELATIVE = 0, TSMS_STYLE_POSITION_ABSOLUTE, TSMS_STYLE_POSITION_INHERIT
 } TSMS_STYLE_POSITION;
 
 typedef enum {
 	TSMS_GRID_TYPE_DEFAULT
 } TSMS_GRID_TYPE;
+
+typedef struct TSMS_GUI_ELEMENT* pGuiElement;
 
 #include "tsms_util.h"
 #include "tsms_font.h"
@@ -58,7 +64,7 @@ typedef struct {
 	uint16_t minHeight;
 	TSMS_STYLE_FONT font;
 	TSMS_STYLE_POSITION position;
-	uint8_t zIndex;
+	uint16_t zIndex;
 	uint16_t top;
 	uint16_t left;
 	TSMS_GRID_TYPE gridType;
@@ -79,5 +85,9 @@ uint16_t TSMS_STYLE_getBoxHeight(TSMS_STYLE style, uint16_t height, uint16_t par
 uint16_t TSMS_STYLE_left(TSMS_STYLE style);
 
 uint16_t TSMS_STYLE_top(TSMS_STYLE style);
+
+bool TSMS_STYLE_equals(TSMS_STYLE style1, TSMS_STYLE style2);
+
+TSMS_STYLE TSMS_STYLE_getStyle(pGuiElement element);
 
 #endif //TSMS_GUI_STYLE_H

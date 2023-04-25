@@ -11,6 +11,8 @@ pMutable TSMS_MUTABLE_create(void * data, TSMS_FREE_FUNCTION freeFunction) {
 	mutable->freeFunction = freeFunction;
 	mutable->setterCallback = TSMS_NULL;
 	mutable->getterCallback = TSMS_NULL;
+	mutable->setterHandler = TSMS_NULL;
+	mutable->getterHandler = TSMS_NULL;
 	return mutable;
 }
 

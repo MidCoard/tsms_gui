@@ -62,7 +62,7 @@ TSMS_RESULT TSMS_GUI_defaultRender(pGuiElement element);
 
 TSMS_GRID_INFO TSMS_GUI_defaultPreRender(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight);
 
-TSMS_GRID_INFO TSMS_GUI_calcGrid(pGuiElement element, uint16_t x, uint16_t y, uint16_t boxWidth, uint16_t boxHeight, uint16_t parentWidth, uint16_t parentHeight);
+TSMS_GRID_INFO TSMS_GUI_calcGrid(pGuiElement element, TSMS_STYLE style, uint16_t x, uint16_t y, uint16_t boxWidth, uint16_t boxHeight, uint16_t parentWidth, uint16_t parentHeight);
 
 void TSMS_GUI_addRenderEntity(pGui gui, pGuiElement element);
 
@@ -72,6 +72,6 @@ TSMS_RESULT TSMS_GUI_add(pGuiElement parent, pGuiElement element);
 
 TSMS_RESULT TSMS_GUI_draw(pGui gui);
 
-TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element);
+TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element, TSMS_STYLE style);
 
 #endif //TSMS_GUI_H

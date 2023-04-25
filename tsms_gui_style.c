@@ -1,6 +1,5 @@
+#include "tsms_gui.h"
 #include "tsms_gui_style.h"
-#include "tsms_util.h"
-#include "tsms_font.h"
 
 TSMS_STYLE TSMS_STYLE_DEFAULT;
 
@@ -16,9 +15,9 @@ TSMS_RESULT TSMS_GUI_STYLE_init() {
 
 	TSMS_STYLE_DEFAULT_BUTTON = (TSMS_STYLE) {
 			{5, 5, 5, 5, TSMS_COLOR_WHITE}, {0, 0, 0, 0, TSMS_COLOR_BLACK}, {5, 5, 5, 5, TSMS_COLOR_WHITE},
-			TSMS_COLOR_WHITE, TSMS_STYLE_AUTO, TSMS_STYLE_AUTO, TSMS_STYLE_AUTO, TSMS_STYLE_AUTO, TSMS_STYLE_AUTO,
-			TSMS_STYLE_AUTO, {TSMS_FONT_TYPE_ARRAY, 1, TSMS_FONT_ARRAY_DEFAULT_FONT}, TSMS_STYLE_POSITION_RELATIVE, 0, 0, 0,
-			TSMS_GRID_TYPE_DEFAULT
+			TSMS_COLOR_WHITE, TSMS_STYLE_INHERIT, TSMS_STYLE_INHERIT, TSMS_STYLE_INHERIT, TSMS_STYLE_INHERIT, TSMS_STYLE_INHERIT,
+			TSMS_STYLE_INHERIT, {TSMS_STYLE_FONT_TYPE_INHERIT, TSMS_STYLE_FONT_SIZE_INHERIT, TSMS_STYLE_FONT_INHERIT}, TSMS_STYLE_POSITION_RELATIVE, TSMS_STYLE_INHERIT, 0, 0,
+			TSMS_STYLE_INHERIT
 	};
 	return TSMS_SUCCESS;
 }
@@ -63,4 +62,42 @@ uint16_t TSMS_STYLE_left(TSMS_STYLE style) {
 
 uint16_t TSMS_STYLE_top(TSMS_STYLE style) {
 	return style.margin.top + style.padding.top + style.border.top;
+}
+
+bool TSMS_STYLE_equals(TSMS_STYLE style1, TSMS_STYLE style2) {
+	uint8_t * style1Pointer = (uint8_t *) &style1;
+	uint8_t * style2Pointer = (uint8_t *) &style2;
+	return memcmp(style1Pointer, style2Pointer, sizeof(TSMS_STYLE)) == 0;
+}
+
+TSMS_STYLE TSMS_STYLE_getStyle(pGuiElement element) {
+	if (element->parent == TSMS_NULL)
+		return element->style;
+	TSMS_STYLE parentStyle = TSMS_STYLE_getStyle(element->parent);
+	TSMS_STYLE style = element->style;
+	if (style.width == TSMS_STYLE_INHERIT)
+		style.width = parentStyle.width;
+	if (style.height == TSMS_STYLE_INHERIT)
+		style.height = parentStyle.height;
+	if (style.minWidth == TSMS_STYLE_INHERIT)
+		style.minWidth = parentStyle.minWidth;
+	if (style.minHeight == TSMS_STYLE_INHERIT)
+		style.minHeight = parentStyle.minHeight;
+	if (style.maxWidth == TSMS_STYLE_INHERIT)
+		style.maxWidth = parentStyle.maxWidth;
+	if (style.maxHeight == TSMS_STYLE_INHERIT)
+		style.maxHeight = parentStyle.maxHeight;
+	if (style.font.type == TSMS_STYLE_FONT_TYPE_INHERIT)
+		style.font = parentStyle.font;
+	if (style.font.size == TSMS_STYLE_FONT_SIZE_INHERIT)
+		style.font.size = parentStyle.font.size;
+	if (style.font.font == TSMS_STYLE_FONT_INHERIT)
+		style.font.font = parentStyle.font.font;
+	if (style.position == TSMS_STYLE_POSITION_INHERIT)
+		style.position = parentStyle.position;
+	if (style.zIndex == TSMS_STYLE_INHERIT)
+		style.zIndex = parentStyle.zIndex;
+	if (style.gridType == TSMS_STYLE_INHERIT)
+		style.gridType = parentStyle.gridType;
+	return style;
 }
