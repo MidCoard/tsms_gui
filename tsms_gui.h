@@ -22,9 +22,9 @@ typedef tGui * pGui;
 typedef struct TSMS_GUI_ELEMENT tGuiElement;
 typedef tGuiElement * pGuiElement;
 
-#include "tsms_def.h"
+#include "tsms_lock.h"
 
-typedef TSMS_RESULT (*TSMS_GUI_RENDER_FUNCTION)(pGuiElement element);
+typedef TSMS_RESULT (*TSMS_GUI_RENDER_FUNCTION)(pGuiElement element, pLock lock);
 
 #include "tsms_mutable_style.h"
 #include "tsms_lock.h"
@@ -61,7 +61,7 @@ void TSMS_GUI_defaultStyleUpdateCallback(pMutableStyle style, TSMS_STYLE data, v
 
 pGui TSMS_GUI_getGUI(pGuiElement element);
 
-TSMS_RESULT TSMS_GUI_defaultRender(pGuiElement element);
+TSMS_RESULT TSMS_GUI_defaultRender(pGuiElement element, pLock lock);
 
 TSMS_GRID_INFO TSMS_GUI_defaultPreRender(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight);
 
@@ -75,7 +75,7 @@ TSMS_RESULT TSMS_GUI_add(pGuiElement parent, pGuiElement element);
 
 TSMS_RESULT TSMS_GUI_draw(pGui gui);
 
-TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element, TSMS_STYLE style);
+TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element, TSMS_STYLE style, pLock lock);
 
 bool TSMS_GUI_equalsGrid(TSMS_GRID_INFO grid1, TSMS_GRID_INFO grid2);
 

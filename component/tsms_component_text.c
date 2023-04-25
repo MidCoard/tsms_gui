@@ -34,9 +34,9 @@ TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, 
 	return element->grid = TSMS_GUI_calcGrid(element, style, x, y, maxWidth, maxHeight + currentColumnHeight, parentWidth, parentHeight);
 }
 
-TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element) {
+TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element, pLock lock) {
 	TSMS_STYLE style = element->computedStyle;
-	TSMS_GUI_renderStyle(element, style);
+	TSMS_GUI_renderStyle(element, style, lock);
 	pText text = (pText) element;
 	pString t = TSMS_MUTABLE_get(text->text);
 	if (t->length == 0)
@@ -63,7 +63,7 @@ TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element) {
 		}
 		TSMS_SCREEN_drawCharTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x + currentRowWidth, grid.y - currentColumnHeight,
 		                            style.font.type, style.font.font, t->cStr[i], style.font.color,
-		                            style.font.size, TSMS_NULL);
+		                            style.font.size, lock);
 		currentRowWidth += width;
 		maxHeight = height > maxHeight ? height : maxHeight;
 	}
