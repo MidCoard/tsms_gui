@@ -15,6 +15,7 @@ pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text, TSMS_BUTTON_CA
 	button->children = TSMS_LIST_create(1);
 	button->style = style;
 	button->lastStyle = style;
+	button->computedStyle = style;
 	button->requestRender = true;
 	button->firstRender = true;
 	button->grid = TSMS_GUI_INVALID_GRID;

@@ -8,6 +8,7 @@
 	TSMS_LP children; \
 	TSMS_STYLE style; \
 	TSMS_STYLE lastStyle; \
+	TSMS_STYLE computedStyle; \
 	bool requestRender; \
 	bool firstRender; \
 	TSMS_GRID_INFO grid; \

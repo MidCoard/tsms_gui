@@ -50,7 +50,7 @@ pGui TSMS_GUI_getGUI(pGuiElement element) {
 }
 
 TSMS_RESULT TSMS_GUI_defaultRender(pGuiElement element) {
-	TSMS_STYLE style = TSMS_STYLE_getStyle(element);
+	TSMS_STYLE style = element->computedStyle;
 	TSMS_GUI_renderStyle(element, style);
 
 	if (element->children != TSMS_NULL)
@@ -67,7 +67,7 @@ TSMS_RESULT TSMS_GUI_defaultRender(pGuiElement element) {
 }
 
 TSMS_GRID_INFO TSMS_GUI_defaultPreRender(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight) {
-	TSMS_STYLE style = TSMS_STYLE_getStyle(element);
+	TSMS_STYLE style = element->computedStyle;
 	if (element->children == TSMS_NULL || element->children->length == 0) {
 		uint16_t width = TSMS_STYLE_getBoxWidth(style, 0, parentWidth);
 		uint16_t height = TSMS_STYLE_getBoxHeight(style, 0, parentHeight);
@@ -75,7 +75,7 @@ TSMS_GRID_INFO TSMS_GUI_defaultPreRender(pGuiElement element, uint16_t x, uint16
 		return element->grid = TSMS_GUI_calcGrid(element, style, x, y, width, height, parentWidth, parentHeight);
 	}
 	pGuiElement child = element->children->list[0];
-	TSMS_STYLE childStyle = TSMS_STYLE_getStyle(child);
+	TSMS_STYLE childStyle = child->computedStyle;
 	uint16_t elementWidth = TSMS_STYLE_elementWidth(style, parentWidth);
 	uint16_t elementHeight = TSMS_STYLE_elementHeight(style, parentHeight); // not include attachment
 	uint16_t boxWidth = 0;
@@ -104,7 +104,7 @@ TSMS_GRID_INFO TSMS_GUI_defaultPreRender(pGuiElement element, uint16_t x, uint16
 			child = element->children->list[i];
 			result = child->preRender(child, result.x + result.width + TSMS_STYLE_left(style), result.y -
 					TSMS_STYLE_top(style), elementWidth - currentRowWidth, elementHeight - currentColumnHeight);
-			childStyle = TSMS_STYLE_getStyle(child);
+			childStyle = child->computedStyle;
 			if (result.x == TSMS_STYLE_AUTO && childStyle.position == TSMS_STYLE_POSITION_RELATIVE) {
 				// means TSMS_POSITION_RELATIVE
 				currentColumnHeight += maxHeight;
@@ -177,6 +177,7 @@ pGui TSMS_GUI_create(TSMS_DPHP display) {
 	gui->children = TSMS_LIST_create(10);
 	gui->style = TSMS_STYLE_DEFAULT;
 	gui->lastStyle = TSMS_STYLE_DEFAULT;
+	gui->computedStyle = TSMS_STYLE_DEFAULT;
 	gui->requestRender = true;
 	gui->firstRender = true;
 	gui->grid = TSMS_GUI_INVALID_GRID;

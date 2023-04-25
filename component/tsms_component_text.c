@@ -3,7 +3,7 @@
 #include "tsms_display.h"
 
 TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight) {
-	TSMS_STYLE style = TSMS_STYLE_getStyle(element);
+	TSMS_STYLE style = element->computedStyle;
 	pText text = (pText) element;
 	pString t = TSMS_MUTABLE_get(text->text);
 	if (t->length == 0)
@@ -35,7 +35,7 @@ TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, 
 }
 
 TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element) {
-	TSMS_STYLE style = TSMS_STYLE_getStyle(element);
+	TSMS_STYLE style = element->computedStyle;
 	TSMS_GUI_renderStyle(element, style);
 	pText text = (pText) element;
 	pString t = TSMS_MUTABLE_get(text->text);
@@ -93,6 +93,7 @@ pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pMutable text) {
 	t->children = TSMS_NULL;
 	t->style = style;
 	t->lastStyle = style;
+	t->computedStyle = style;
 	t->requestRender = true;
 	t->firstRender = true;
 	t->grid = TSMS_GUI_INVALID_GRID;

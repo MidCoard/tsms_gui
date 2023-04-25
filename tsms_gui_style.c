@@ -73,7 +73,7 @@ bool TSMS_STYLE_equals(TSMS_STYLE style1, TSMS_STYLE style2) {
 TSMS_STYLE TSMS_STYLE_getStyle(pGuiElement element) {
 	if (element->parent == TSMS_NULL)
 		return element->style;
-	TSMS_STYLE parentStyle = TSMS_STYLE_getStyle(element->parent);
+	TSMS_STYLE parentStyle = element->parent->computedStyle;
 	TSMS_STYLE style = element->style;
 	if (style.width == TSMS_STYLE_INHERIT)
 		style.width = parentStyle.width;
@@ -99,5 +99,5 @@ TSMS_STYLE TSMS_STYLE_getStyle(pGuiElement element) {
 		style.zIndex = parentStyle.zIndex;
 	if (style.gridType == TSMS_STYLE_INHERIT)
 		style.gridType = parentStyle.gridType;
-	return style;
+	return element->computedStyle = style;
 }
