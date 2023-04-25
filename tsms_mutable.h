@@ -8,6 +8,7 @@ typedef void(*TSMS_MUTABLE_SETTER_CALLBACK)(pMutable, void *, void * handler);
 typedef void(*TSMS_MUTABLE_GETTER_CALLBACK)(pMutable, void * handler);
 
 #include "tsms_def.h"
+#include "tsms_function_def.h"
 
 struct TSMS_MUTABLE {
 	void * data;
@@ -15,9 +16,10 @@ struct TSMS_MUTABLE {
 	TSMS_MUTABLE_GETTER_CALLBACK getterCallback;
 	void *setterHandler;
 	void *getterHandler;
+	TSMS_FREE_FUNCTION freeFunction;
 };
 
-pMutable TSMS_MUTABLE_create(void * data);
+pMutable TSMS_MUTABLE_create(void * data, TSMS_FREE_FUNCTION freeFunction);
 
 TSMS_RESULT TSMS_MUTABLE_set(pMutable mutable, void * data);
 

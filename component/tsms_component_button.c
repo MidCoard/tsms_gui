@@ -13,7 +13,6 @@ pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text, TSMS_BUTTON_CA
 	button->render = TSMS_GUI_defaultRender;
 	button->parent = TSMS_NULL;
 	button->children = TSMS_LIST_create(1);
-	TSMS_LIST_add(button->children, text);
 	button->style = style;
 	button->lastStyle = style;
 	button->requestRender = true;
@@ -27,6 +26,8 @@ pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text, TSMS_BUTTON_CA
 	button->callback = callback;
 	button->handler = handler;
 	button->press = false;
+
+	TSMS_GUI_add(button, text);
 	return button;
 }
 

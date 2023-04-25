@@ -37,6 +37,15 @@ TSMS_INLINE void __tsms_internal_request_render(pGuiElement element, bool parent
 			__tsms_internal_request_render(element->children->list[i], element->requestRender || parentFlag, max(zIndex, element->style.zIndex));
 	if (parentFlag && element->style.zIndex <= zIndex)
 		element->requestRender = false;
+	TSMS_LIST_add(TSMS_GUI_getGUI(element)->list, element);
+}
+
+pGui TSMS_GUI_getGUI(pGuiElement element) {
+	if (element == TSMS_NULL)
+		return TSMS_NULL;
+	if (element->gui != TSMS_NULL)
+		return element->gui;
+	return TSMS_GUI_getGUI(element->parent);
 }
 
 TSMS_RESULT TSMS_GUI_defaultRender(pGuiElement element) {
@@ -135,8 +144,8 @@ TSMS_GRID_INFO TSMS_GUI_calcGrid(pGuiElement element, uint16_t x, uint16_t y, ui
 	else {
 		uint16_t top = style.top;
 		uint16_t left = style.left;
-		uint16_t screenWidth = element->gui->display->screen->width;
-		uint16_t screenHeight = element->gui->display->screen->height;
+		uint16_t screenWidth = TSMS_GUI_getGUI(element)->display->screen->width;
+		uint16_t screenHeight = TSMS_GUI_getGUI(element)->display->screen->height;
 		if (top == TSMS_STYLE_AUTO)
 			top = screenHeight;
 		if (left == TSMS_STYLE_AUTO)
@@ -174,6 +183,7 @@ pGui TSMS_GUI_create(TSMS_DPHP display) {
 	gui->display = display;
 	gui->lock = TSMS_LOCK_create();
 	gui->list = TSMS_LIST_create(10);
+	TSMS_LIST_add(gui->list, gui);
 //	TSMS_TOUCH_setCallback(gui->display->touch, )
 	return gui;
 }
@@ -185,8 +195,9 @@ TSMS_RESULT TSMS_GUI_add(pGuiElement parent, pGuiElement element) {
 		return TSMS_ERROR;
 	if (parent->children == TSMS_NULL)
 		return TSMS_ERROR;
+	pGui gui = TSMS_GUI_getGUI(parent);
 	element->parent = parent;
-	element->gui = parent->gui;
+	element->gui = gui;
 	element->level = parent->level + 1;
 	return TSMS_LIST_add(parent->children, element);
 }
@@ -195,6 +206,7 @@ TSMS_RESULT TSMS_GUI_draw(pGui gui) {
 	if (gui == TSMS_NULL)
 		return TSMS_ERROR;
 	TSMS_LOCK_lock(gui->lock);
+	TSMS_LIST_clear(gui->list);
 	__tsms_internal_request_render(gui, false, 0);
 	gui->preRender(gui, 0, gui->display->screen->height, gui->display->screen->width, gui->display->screen->height);
 	TSMS_ALGORITHM_sort(gui->list, __tsms_internal_compare_grid_render_info);
@@ -209,7 +221,6 @@ TSMS_RESULT TSMS_GUI_draw(pGui gui) {
 		if (element->requestRender)
 			element->render(element);
 	}
-	TSMS_LIST_clear(gui->list);
 	TSMS_RESULT result = TSMS_DISPLAY_request(gui->display);
 	TSMS_LOCK_unlock(gui->lock);
 	return result;
@@ -231,33 +242,33 @@ TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element) {
 	}
 	// render margin
 	if (!ignoreMargin) {
-		TSMS_SCREEN_fillRectTopLeft(element->gui->display->screen, grid.x, grid.y, grid.width, style.margin.top,
+		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x, grid.y, grid.width, style.margin.top,
 		                     style.margin.color, TSMS_NULL);
-		TSMS_SCREEN_fillRectTopLeft(element->gui->display->screen, grid.x, grid.y - grid.height + style.margin.bottom,
+		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x, grid.y - grid.height + style.margin.bottom,
 		                     grid.width, style.margin.bottom, style.margin.color, TSMS_NULL);
-		TSMS_SCREEN_fillRectTopLeft(element->gui->display->screen, grid.x, grid.y - style.margin.top, style.margin.left,
+		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x, grid.y - style.margin.top, style.margin.left,
 		                     grid.height - style.margin.top - style.margin.bottom, style.margin.color, TSMS_NULL);
-		TSMS_SCREEN_fillRectTopLeft(element->gui->display->screen, grid.x + grid.width - style.margin.right,
+		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x + grid.width - style.margin.right,
 		                     grid.y - style.margin.top, style.margin.right,
 		                     grid.height - style.margin.top - style.margin.bottom, style.margin.color, TSMS_NULL);
 	}
 
 	// render border
 	if (!ignoreBorder) {
-		TSMS_SCREEN_fillRectTopLeft(element->gui->display->screen, grid.x + style.margin.left,
+		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x + style.margin.left,
 		                     grid.y - style.margin.top, grid.width - style.margin.left - style.margin.right,
 		                     style.border.top, style.border.color, TSMS_NULL);
-		TSMS_SCREEN_fillRectTopLeft(element->gui->display->screen,
+		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
 		                     grid.x + style.margin.left,
 		                     grid.y - grid.height + style.margin.bottom + style.border.bottom,
 		                     grid.width - style.margin.left - style.margin.right,
 		                     style.border.bottom, style.border.color, TSMS_NULL);
-		TSMS_SCREEN_fillRectTopLeft(element->gui->display->screen,
+		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
 		                     grid.x + style.margin.left,
 		                     grid.y - style.margin.top,
 		                     style.border.left,
 		                     grid.height - style.margin.top - style.margin.bottom, style.border.color, TSMS_NULL);
-		TSMS_SCREEN_fillRectTopLeft(element->gui->display->screen,
+		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
 		                     grid.x + grid.width - style.margin.right - style.border.right,
 		                     grid.y - style.margin.top,
 		                     style.border.right,
@@ -265,23 +276,23 @@ TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element) {
 	}
 
 	if (!ignorePadding) {
-		TSMS_SCREEN_fillRectTopLeft(element->gui->display->screen,
+		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
 		                     grid.x + style.margin.left + style.border.left,
 		                     grid.y - style.margin.top - style.border.top,
 		                     grid.width - style.margin.left - style.margin.right - style.border.left - style.border.right,
 		                     style.padding.top, style.padding.color, TSMS_NULL);
-		TSMS_SCREEN_fillRectTopLeft(element->gui->display->screen,
+		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
 		                     grid.x + style.margin.left + style.border.left,
 		                     grid.y - grid.height + style.margin.bottom + style.border.bottom + style.padding.bottom,
 		                     grid.width - style.margin.left - style.margin.right - style.border.left - style.border.right,
 		                     style.padding.bottom, style.padding.color, TSMS_NULL);
-		TSMS_SCREEN_fillRectTopLeft(element->gui->display->screen,
+		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
 		                     grid.x + style.margin.left + style.border.left,
 		                     grid.y - style.margin.top - style.border.top,
 		                     style.padding.left,
 		                     grid.height - style.margin.top - style.margin.bottom - style.border.top - style.border.bottom,
 		                     style.padding.color, TSMS_NULL);
-		TSMS_SCREEN_fillRectTopLeft(element->gui->display->screen,
+		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
 		                     grid.x + grid.width - style.margin.right - style.border.right - style.padding.right,
 		                     grid.y - style.margin.top - style.border.top,
 		                     style.padding.right,
@@ -290,7 +301,7 @@ TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element) {
 	}
 
 	// render background color
-	TSMS_SCREEN_fillRectTopLeft(element->gui->display->screen,
+	TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
 	                     grid.x + style.margin.left + style.border.left + style.padding.left,
 	                     grid.y - style.margin.top - style.border.top - style.padding.top,
 	                     grid.width - style.margin.left - style.margin.right - style.border.left - style.border.right - style.padding.left - style.padding.right,

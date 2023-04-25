@@ -59,7 +59,7 @@ TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element) {
 			if (width + currentRowWidth > grid.width || height + currentColumnHeight > grid.height)
 				break;
 		}
-		TSMS_SCREEN_drawCharTopLeft(text->gui->display->screen, grid.x + currentRowWidth, grid.y + currentColumnHeight,
+		TSMS_SCREEN_drawCharTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x + currentRowWidth, grid.y + currentColumnHeight,
 		                            text->style.font.type, text->style.font.font, t->cStr[i], text->style.font.color,
 		                            text->style.font.size, TSMS_NULL);
 		currentRowWidth += width;
@@ -74,7 +74,8 @@ TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element) {
 
 TSMS_INLINE void __tsms_internal_text_callback(pMutable mutable, void * data, void * handler) {
 	pText text = (pText) handler;
-	text->requestRender = true;
+	if (!TSMS_STRING_equals(mutable->data, data))
+		text->requestRender = true;
 }
 
 pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pMutable text) {

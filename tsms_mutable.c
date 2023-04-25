@@ -1,6 +1,6 @@
 #include "tsms_mutable.h"
 
-pMutable TSMS_MUTABLE_create(void * data) {
+pMutable TSMS_MUTABLE_create(void * data, TSMS_FREE_FUNCTION freeFunction) {
 	pMutable mutable = (pMutable)malloc(sizeof(tMutable));
 	if (mutable == TSMS_NULL) {
 		tString temp = TSMS_STRING_temp("malloc failed for mutable");
@@ -8,6 +8,7 @@ pMutable TSMS_MUTABLE_create(void * data) {
 		return TSMS_NULL;
 	}
 	mutable->data = data;
+	mutable->freeFunction = freeFunction;
 	mutable->setterCallback = TSMS_NULL;
 	mutable->getterCallback = TSMS_NULL;
 	return mutable;
@@ -19,7 +20,10 @@ TSMS_RESULT TSMS_MUTABLE_set(pMutable mutable, void * data) {
 	if (mutable->data != data) {
 		if (mutable->setterCallback != TSMS_NULL)
 			mutable->setterCallback(mutable, data, mutable->setterHandler);
-		free(mutable->data);
+		if (mutable->freeFunction != TSMS_NULL)
+			mutable->freeFunction(mutable->data);
+		else
+			free(mutable->data);
 		mutable->data = data;
 	}
 	return TSMS_SUCCESS;

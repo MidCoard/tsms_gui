@@ -56,6 +56,8 @@ struct TSMS_GUI_ELEMENT {
 
 typedef TSMS_GRID_INFO * pGridInfo;
 
+pGui TSMS_GUI_getGUI(pGuiElement element);
+
 TSMS_RESULT TSMS_GUI_defaultRender(pGuiElement element);
 
 TSMS_GRID_INFO TSMS_GUI_defaultPreRender(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight);
