@@ -15,7 +15,7 @@ TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, 
 	for (TSMS_POS i = 0; i < t->length; i++) {
 		TSMS_FONT_DATA font = TSMS_FONT_resolve(style.font.type, style.font.font, t->cStr[i]);
 		if (font.type == TSMS_FONT_TYPE_INVALID)
-			return element->grid = TSMS_GUI_calcGrid(element, style, x, y, 0, 0, parentWidth, parentHeight);
+			return element->grid = TSMS_GUI_INVALID_GRID;
 		uint16_t width = font.width * style.font.size;
 		uint16_t height = font.height * style.font.size;
 		if (width + currentRowWidth > parentWidth || height + currentColumnHeight > parentHeight) {
@@ -24,7 +24,7 @@ TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, 
 			maxWidth = currentRowWidth > maxWidth ? currentRowWidth : maxWidth;
 			currentRowWidth = 0;
 			if (width + currentRowWidth > parentWidth || height + currentColumnHeight > parentHeight)
-				break;
+				return element->grid = TSMS_GUI_INVALID_GRID;
 		}
 		currentRowWidth += width;
 		maxHeight = height > maxHeight ? height : maxHeight;
@@ -36,7 +36,7 @@ TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, 
 
 TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element, pLock lock) {
 	TSMS_STYLE style = element->computedStyle;
-	if (!TSMS_GUI_isInvalidGrid(element->grid)) {
+	if (!TSMS_GUI_isInvalidGrid(element->grid) && element->grid.displayType == TSMS_DISPLAY_TYPE_BLOCK) {
 		TSMS_GUI_renderStyle(element, style, lock);
 		pText text = (pText) element;
 		pString t = TSMS_MUTABLE_get(text->text);

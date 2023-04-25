@@ -36,7 +36,8 @@ typedef struct {
 	uint16_t y;
 	uint16_t width;
 	uint16_t height;
-	uint8_t zIndex;
+	uint16_t zIndex;
+	TSMS_DISPLAY_TYPE displayType;
 	// x y should be top left
 } TSMS_GRID_INFO;
 

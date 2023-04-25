@@ -5,7 +5,7 @@
 #include "tsms_math.h"
 #include "tsms_algorithm.h"
 
-TSMS_GRID_INFO TSMS_GUI_INVALID_GRID = {0, 0, 0, 0, 0};
+TSMS_GRID_INFO TSMS_GUI_INVALID_GRID = {0, 0, 0, 0, 0, TSMS_DISPLAY_TYPE_BLOCK};
 
 TSMS_INLINE long __tsms_internal_compare_grid_render_info(void * a, void * b) {
 	pGuiElement element1 = (pGuiElement) a;
@@ -93,7 +93,7 @@ pGui TSMS_GUI_getGUI(pGuiElement element) {
 
 TSMS_RESULT TSMS_GUI_defaultRender(pGuiElement element, pLock lock) {
 	TSMS_STYLE style = element->computedStyle;
-	if (!TSMS_GUI_isInvalidGrid(element->grid)) {
+	if (!TSMS_GUI_isInvalidGrid(element->grid) && element->grid.displayType == TSMS_DISPLAY_TYPE_BLOCK) {
 		TSMS_GUI_renderStyle(element, style, lock);
 
 		if (element->children != TSMS_NULL)
@@ -110,7 +110,7 @@ TSMS_RESULT TSMS_GUI_defaultRender(pGuiElement element, pLock lock) {
 }
 
 bool TSMS_GUI_isInvalidGrid(TSMS_GRID_INFO grid) {
-	return grid.width == 0;
+	return grid.width == 0 && grid.displayType == TSMS_DISPLAY_TYPE_BLOCK;
 }
 
 TSMS_GRID_INFO TSMS_GUI_defaultPreRender(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight) {
@@ -130,6 +130,8 @@ TSMS_GRID_INFO TSMS_GUI_defaultPreRender(pGuiElement element, uint16_t x, uint16
 	if (style.gridType == TSMS_GRID_TYPE_DEFAULT) {
 		TSMS_GRID_INFO result = child->preRender(child, x + TSMS_STYLE_left(style), y - TSMS_STYLE_top(style), elementWidth, elementHeight);
 		if (childStyle.position == TSMS_STYLE_POSITION_ABSOLUTE || TSMS_GUI_isInvalidGrid(result)) {
+			if (childStyle.position == TSMS_STYLE_POSITION_RELATIVE)
+				return element->grid = TSMS_GUI_INVALID_GRID;
 			result.x = x;
 			result.y = y;
 			result.width = 0;
@@ -154,8 +156,8 @@ TSMS_GRID_INFO TSMS_GUI_defaultPreRender(pGuiElement element, uint16_t x, uint16
 				currentRowWidth = 0;
 				result = child->preRender(child, x + TSMS_STYLE_left(style), y - currentColumnHeight -
 						TSMS_STYLE_top(style), elementWidth - currentRowWidth, elementHeight - currentColumnHeight);
-				if (result.x == TSMS_STYLE_AUTO)
-					break;
+				if (TSMS_GUI_isInvalidGrid(result))
+					return element->grid = TSMS_GUI_INVALID_GRID;
 				// success
 				currentRowWidth += result.width;
 				maxHeight = result.height > maxHeight ? result.height : maxHeight;
@@ -179,13 +181,13 @@ TSMS_GRID_INFO TSMS_GUI_calcGrid(pGuiElement element, TSMS_STYLE style, uint16_t
 	if (element == TSMS_NULL)
 		return TSMS_GUI_INVALID_GRID;
 	if (style.displayType == TSMS_DISPLAY_TYPE_NONE)
-		return TSMS_GUI_INVALID_GRID;
+		return (TSMS_GRID_INFO) {x, y, 0, 0, 0, TSMS_DISPLAY_TYPE_NONE};
 	boxWidth += TSMS_STYLE_X_ATTACHMENT(style);
 	boxHeight += TSMS_STYLE_Y_ATTACHMENT(style);
 	if (style.position == TSMS_STYLE_POSITION_RELATIVE) {
 		if (boxWidth > parentWidth || boxHeight > parentHeight)
 			return TSMS_GUI_INVALID_GRID;
-		return (TSMS_GRID_INFO) {x, y, boxWidth, boxHeight, style.zIndex};
+		return (TSMS_GRID_INFO) {x, y, boxWidth, boxHeight, style.zIndex, TSMS_DISPLAY_TYPE_BLOCK};
 	}
 	else {
 		uint16_t top = style.top;
@@ -198,7 +200,7 @@ TSMS_GRID_INFO TSMS_GUI_calcGrid(pGuiElement element, TSMS_STYLE style, uint16_t
 			left = 0;
 		if (boxWidth + left > screenWidth || top - boxHeight < 0)
 			return TSMS_GUI_INVALID_GRID;
-		return (TSMS_GRID_INFO) {left, top, boxWidth, boxHeight, style.zIndex};
+		return (TSMS_GRID_INFO) {left, top, boxWidth, boxHeight, style.zIndex, TSMS_DISPLAY_TYPE_BLOCK};
 	}
 }
 
