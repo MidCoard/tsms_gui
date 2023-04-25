@@ -132,11 +132,9 @@ TSMS_GRID_INFO TSMS_GUI_defaultPreRender(pGuiElement element, uint16_t x, uint16
 						TSMS_STYLE_top(style), elementWidth - currentRowWidth, elementHeight - currentColumnHeight);
 				if (result.x == TSMS_STYLE_AUTO)
 					break;
-				else {
-					// success
-					currentRowWidth += result.width;
-					maxHeight = result.height > maxHeight ? result.height : maxHeight;
-				}
+				// success
+				currentRowWidth += result.width;
+				maxHeight = result.height > maxHeight ? result.height : maxHeight;
 			} else if (childStyle.position == TSMS_STYLE_POSITION_RELATIVE) {
 				// success
 				currentRowWidth += result.width;
