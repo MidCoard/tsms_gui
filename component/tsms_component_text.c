@@ -36,41 +36,45 @@ TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, 
 
 TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element, pLock lock) {
 	TSMS_STYLE style = element->computedStyle;
-	TSMS_GUI_renderStyle(element, style, lock);
-	pText text = (pText) element;
-	pString t = TSMS_MUTABLE_get(text->text);
-	if (t->length == 0)
-		return TSMS_SUCCESS;
-	TSMS_GRID_INFO grid = element->grid;
-	uint16_t maxWidth = 0;
-	uint16_t currentRowWidth = 0;
-	uint16_t maxHeight = 0;
-	uint16_t currentColumnHeight = 0;
-	// TODO: add cache
-	for (TSMS_POS i = 0; i < t->length;i++) {
-		TSMS_FONT_DATA font = TSMS_FONT_resolve(style.font.type, style.font.font, t->cStr[i]);
-		if (font.type == TSMS_FONT_TYPE_INVALID)
+	if (!TSMS_GUI_isInvalidGrid(element->grid)) {
+		TSMS_GUI_renderStyle(element, style, lock);
+		pText text = (pText) element;
+		pString t = TSMS_MUTABLE_get(text->text);
+		if (t->length == 0)
 			return TSMS_SUCCESS;
-		uint16_t width = font.width * style.font.size;
-		uint16_t height = font.height * style.font.size;
-		if (width + currentRowWidth > grid.width || height + currentColumnHeight > grid.height) {
-			currentColumnHeight += maxHeight;
-			maxHeight = 0;
-			maxWidth = currentRowWidth > maxWidth ? currentRowWidth : maxWidth;
-			currentRowWidth = 0;
-			if (width + currentRowWidth > grid.width || height + currentColumnHeight > grid.height)
-				break;
+		TSMS_GRID_INFO grid = element->grid;
+		uint16_t maxWidth = 0;
+		uint16_t currentRowWidth = 0;
+		uint16_t maxHeight = 0;
+		uint16_t currentColumnHeight = 0;
+		// TODO: add cache
+		for (TSMS_POS i = 0; i < t->length; i++) {
+			TSMS_FONT_DATA font = TSMS_FONT_resolve(style.font.type, style.font.font, t->cStr[i]);
+			if (font.type == TSMS_FONT_TYPE_INVALID)
+				return TSMS_SUCCESS;
+			uint16_t width = font.width * style.font.size;
+			uint16_t height = font.height * style.font.size;
+			if (width + currentRowWidth > grid.width || height + currentColumnHeight > grid.height) {
+				currentColumnHeight += maxHeight;
+				maxHeight = 0;
+				maxWidth = currentRowWidth > maxWidth ? currentRowWidth : maxWidth;
+				currentRowWidth = 0;
+				if (width + currentRowWidth > grid.width || height + currentColumnHeight > grid.height)
+					break;
+			}
+			TSMS_SCREEN_drawCharTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x + currentRowWidth,
+			                            grid.y - currentColumnHeight,
+			                            style.font.type, style.font.font, t->cStr[i], style.font.color,
+			                            style.font.size, lock);
+			currentRowWidth += width;
+			maxHeight = height > maxHeight ? height : maxHeight;
 		}
-		TSMS_SCREEN_drawCharTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x + currentRowWidth, grid.y - currentColumnHeight,
-		                            style.font.type, style.font.font, t->cStr[i], style.font.color,
-		                            style.font.size, lock);
-		currentRowWidth += width;
-		maxHeight = height > maxHeight ? height : maxHeight;
 	}
-	text->requestRender = false;
-	text->firstRender = false;
-	text->lastStyle = style;
-	text->lastGrid = text->grid;
+
+	element->requestRender = false;
+	element->firstRender = false;
+	element->lastStyle = style;
+	element->lastGrid = element->grid;
 	return TSMS_SUCCESS;
 }
 

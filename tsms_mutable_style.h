@@ -29,5 +29,7 @@ TSMS_RESULT TSMS_MUTABLE_STYLE_setGetterCallback(pMutableStyle mutableStyle, TSM
 
 TSMS_RESULT TSMS_MUTABLE_STYLE_setFont(pMutableStyle mutableStyle, TSMS_STYLE_FONT font);
 
+TSMS_RESULT TSMS_MUTABLE_STYLE_setDisplayType(pMutableStyle mutableStyle, TSMS_DISPLAY_TYPE displayType);
+
 
 #endif //TSMS_MUTABLE_STYLE_H

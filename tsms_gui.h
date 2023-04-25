@@ -29,6 +29,7 @@ typedef TSMS_RESULT (*TSMS_GUI_RENDER_FUNCTION)(pGuiElement element, pLock lock)
 #include "tsms_mutable_style.h"
 #include "tsms_lock.h"
 #include "tsms_display.h"
+#include "tsms_set.h"
 
 typedef struct {
 	uint16_t x;
@@ -46,7 +47,6 @@ typedef TSMS_GRID_INFO (*TSMS_GUI_PRE_RENDER_FUNCTION)(pGuiElement element, uint
 struct TSMS_GUI {
 	TSMS_EXTEND_GUI_ELEMENT
 	TSMS_DPHP display;
-	pLock lock;
 	TSMS_LP list;
 // we support 100 elements render
 };
@@ -63,11 +63,11 @@ pGui TSMS_GUI_getGUI(pGuiElement element);
 
 TSMS_RESULT TSMS_GUI_defaultRender(pGuiElement element, pLock lock);
 
+bool TSMS_GUI_isInvalidGrid(TSMS_GRID_INFO grid);
+
 TSMS_GRID_INFO TSMS_GUI_defaultPreRender(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight);
 
 TSMS_GRID_INFO TSMS_GUI_calcGrid(pGuiElement element, TSMS_STYLE style, uint16_t x, uint16_t y, uint16_t boxWidth, uint16_t boxHeight, uint16_t parentWidth, uint16_t parentHeight);
-
-void TSMS_GUI_addRenderEntity(pGui gui, pGuiElement element);
 
 pGui TSMS_GUI_create(TSMS_DPHP display);
 

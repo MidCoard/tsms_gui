@@ -16,6 +16,10 @@ typedef enum {
 	TSMS_GRID_TYPE_DEFAULT
 } TSMS_GRID_TYPE;
 
+typedef enum {
+	TSMS_DISPLAY_TYPE_NONE = 0, TSMS_DISPLAY_TYPE_BLOCK
+} TSMS_DISPLAY_TYPE;
+
 typedef struct TSMS_GUI_ELEMENT* pGuiElement;
 
 #include "tsms_util.h"
@@ -69,6 +73,7 @@ typedef struct {
 	uint16_t top;
 	uint16_t left;
 	TSMS_GRID_TYPE gridType;
+	TSMS_DISPLAY_TYPE displayType;
 } TSMS_STYLE;
 
 extern TSMS_STYLE TSMS_STYLE_DEFAULT;
