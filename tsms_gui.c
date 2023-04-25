@@ -32,10 +32,11 @@ TSMS_INLINE uint16_t TSMS_STYLE_elementHeight(TSMS_STYLE style, uint16_t parentH
 }
 
 TSMS_INLINE void __tsms_internal_request_render(pGuiElement element, bool parentFlag, uint8_t zIndex) {
+	TSMS_STYLE style = TSMS_STYLE_getStyle(element);
 	if (element->children != TSMS_NULL)
 		for (TSMS_POS i = 0; i < element->children->length; i++)
-			__tsms_internal_request_render(element->children->list[i], element->requestRender || parentFlag, max(zIndex, element->style.zIndex));
-	if (parentFlag && element->style.zIndex <= zIndex)
+			__tsms_internal_request_render(element->children->list[i], element->requestRender || parentFlag, max(zIndex, style.zIndex));
+	if (parentFlag && style.zIndex <= zIndex)
 		element->requestRender = false;
 	TSMS_LIST_add(TSMS_GUI_getGUI(element)->list, element);
 }
@@ -74,13 +75,14 @@ TSMS_GRID_INFO TSMS_GUI_defaultPreRender(pGuiElement element, uint16_t x, uint16
 		return element->grid = TSMS_GUI_calcGrid(element, style, x, y, width, height, parentWidth, parentHeight);
 	}
 	pGuiElement child = element->children->list[0];
+	TSMS_STYLE childStyle = TSMS_STYLE_getStyle(child);
 	uint16_t elementWidth = TSMS_STYLE_elementWidth(style, parentWidth);
 	uint16_t elementHeight = TSMS_STYLE_elementHeight(style, parentHeight); // not include attachment
 	uint16_t boxWidth = 0;
 	uint16_t boxHeight = 0;
 	if (style.gridType == TSMS_GRID_TYPE_DEFAULT) {
 		TSMS_GRID_INFO result = child->preRender(child, x + TSMS_STYLE_left(style), y - TSMS_STYLE_top(style), elementWidth, elementHeight);
-		if (result.x == TSMS_STYLE_AUTO && child->style.position == TSMS_STYLE_POSITION_RELATIVE) {
+		if (result.x == TSMS_STYLE_AUTO && childStyle.position == TSMS_STYLE_POSITION_RELATIVE) {
 			// if the first child is absolute, don't care the result, because invalid grid will not render
 			uint16_t width = TSMS_STYLE_getBoxWidth(style, 0, parentWidth);
 			uint16_t height = TSMS_STYLE_getBoxHeight(style, 0, parentHeight);
@@ -102,7 +104,8 @@ TSMS_GRID_INFO TSMS_GUI_defaultPreRender(pGuiElement element, uint16_t x, uint16
 			child = element->children->list[i];
 			result = child->preRender(child, result.x + result.width + TSMS_STYLE_left(style), result.y -
 					TSMS_STYLE_top(style), elementWidth - currentRowWidth, elementHeight - currentColumnHeight);
-			if (result.x == TSMS_STYLE_AUTO && child->style.position == TSMS_STYLE_POSITION_RELATIVE) {
+			childStyle = TSMS_STYLE_getStyle(child);
+			if (result.x == TSMS_STYLE_AUTO && childStyle.position == TSMS_STYLE_POSITION_RELATIVE) {
 				// means TSMS_POSITION_RELATIVE
 				currentColumnHeight += maxHeight;
 				maxHeight = 0;
@@ -117,7 +120,7 @@ TSMS_GRID_INFO TSMS_GUI_defaultPreRender(pGuiElement element, uint16_t x, uint16
 					currentRowWidth += result.width;
 					maxHeight = result.height > maxHeight ? result.height : maxHeight;
 				}
-			} else if (child->style.position == TSMS_STYLE_POSITION_RELATIVE) {
+			} else if (childStyle.position == TSMS_STYLE_POSITION_RELATIVE) {
 				// success
 				currentRowWidth += result.width;
 				maxHeight = result.height > maxHeight ? result.height : maxHeight;
