@@ -49,3 +49,16 @@ TSMS_RESULT TSMS_MUTABLE_STYLE_setGetterCallback(pMutableStyle mutableStyle, TSM
 	mutableStyle->getterHandler = handler;
 	return TSMS_SUCCESS;
 }
+
+TSMS_RESULT TSMS_MUTABLE_STYLE_setFont(pMutableStyle mutableStyle, TSMS_STYLE_FONT font) {
+	if (mutableStyle == TSMS_NULL)
+		return TSMS_ERROR;
+	if (!TSMS_STYLE_equalsFont(mutableStyle->style.font, font)) {
+		TSMS_STYLE newStyle = mutableStyle->style;
+		newStyle.font = font;
+		if (mutableStyle->setterCallback != TSMS_NULL)
+			mutableStyle->setterCallback(mutableStyle, newStyle, mutableStyle->setterHandler);
+		mutableStyle->style = newStyle;
+	}
+	return TSMS_SUCCESS;
+}

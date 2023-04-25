@@ -108,5 +108,5 @@ pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pMutable text) {
 }
 
 pText TSMS_TEXT_create(pMutable text) {
-	return TSMS_TEXT_createWithStyle(TSMS_STYLE_DEFAULT, text);
+	return TSMS_TEXT_createWithStyle(TSMS_STYLE_DEFAULT_TEXT, text);
 }

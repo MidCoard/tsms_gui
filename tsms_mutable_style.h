@@ -27,6 +27,7 @@ TSMS_RESULT TSMS_MUTABLE_STYLE_setSetterCallback(pMutableStyle mutableStyle, TSM
 
 TSMS_RESULT TSMS_MUTABLE_STYLE_setGetterCallback(pMutableStyle mutableStyle, TSMS_MUTABLE_STYLE_GETTER_CALLBACK callback, void * handler);
 
+TSMS_RESULT TSMS_MUTABLE_STYLE_setFont(pMutableStyle mutableStyle, TSMS_STYLE_FONT font);
 
 
 #endif //TSMS_MUTABLE_STYLE_H
