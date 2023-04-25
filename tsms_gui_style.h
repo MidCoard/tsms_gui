@@ -64,7 +64,7 @@ typedef struct {
 	uint16_t minHeight;
 	TSMS_STYLE_FONT font;
 	TSMS_STYLE_POSITION position;
-	uint16_t zIndex;
+	uint16_t zIndex; //  todo not take into consideration
 	uint16_t top;
 	uint16_t left;
 	TSMS_GRID_TYPE gridType;

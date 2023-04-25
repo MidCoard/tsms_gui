@@ -41,6 +41,11 @@ TSMS_INLINE void __tsms_internal_request_render(pGuiElement element, bool parent
 	TSMS_LIST_add(TSMS_GUI_getGUI(element)->list, element);
 }
 
+void TSMS_GUI_defaultStyleUpdateCallback(pMutableStyle style, TSMS_STYLE data, void * handler) {
+	pGuiElement element = (pGuiElement) handler;
+	element->requestRender = true;
+}
+
 pGui TSMS_GUI_getGUI(pGuiElement element) {
 	if (element == TSMS_NULL)
 		return TSMS_NULL;
@@ -175,7 +180,8 @@ pGui TSMS_GUI_create(TSMS_DPHP display) {
 	gui->render = TSMS_GUI_defaultRender;
 	gui->parent = TSMS_NULL;
 	gui->children = TSMS_LIST_create(10);
-	gui->style = TSMS_STYLE_DEFAULT;
+	gui->style = TSMS_MUTABLE_STYLE_create(TSMS_STYLE_DEFAULT);
+	TSMS_MUTABLE_STYLE_setSetterCallback(gui->style, TSMS_GUI_defaultStyleUpdateCallback, gui);
 	gui->lastStyle = TSMS_STYLE_DEFAULT;
 	gui->computedStyle = TSMS_STYLE_DEFAULT;
 	gui->requestRender = true;

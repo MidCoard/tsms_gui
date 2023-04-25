@@ -13,7 +13,8 @@ pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text, TSMS_BUTTON_CA
 	button->render = TSMS_GUI_defaultRender;
 	button->parent = TSMS_NULL;
 	button->children = TSMS_LIST_create(1);
-	button->style = style;
+	button->style = TSMS_MUTABLE_STYLE_create(style);
+	TSMS_MUTABLE_STYLE_setSetterCallback(button->style, TSMS_GUI_defaultStyleUpdateCallback, button);
 	button->lastStyle = style;
 	button->computedStyle = style;
 	button->requestRender = true;

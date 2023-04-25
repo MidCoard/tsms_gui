@@ -6,7 +6,7 @@
 	TSMS_GUI_RENDER_FUNCTION render; \
 	pGuiElement parent; \
 	TSMS_LP children; \
-	TSMS_STYLE style; \
+	pMutableStyle style; \
 	TSMS_STYLE lastStyle; \
 	TSMS_STYLE computedStyle; \
 	bool requestRender; \
@@ -26,7 +26,7 @@ typedef tGuiElement * pGuiElement;
 
 typedef TSMS_RESULT (*TSMS_GUI_RENDER_FUNCTION)(pGuiElement element);
 
-#include "tsms_gui_style.h"
+#include "tsms_mutable_style.h"
 #include "tsms_lock.h"
 #include "tsms_display.h"
 
@@ -56,6 +56,8 @@ struct TSMS_GUI_ELEMENT {
 };
 
 typedef TSMS_GRID_INFO * pGridInfo;
+
+void TSMS_GUI_defaultStyleUpdateCallback(pMutableStyle style, TSMS_STYLE data, void * handler);
 
 pGui TSMS_GUI_getGUI(pGuiElement element);
 

@@ -72,9 +72,9 @@ bool TSMS_STYLE_equals(TSMS_STYLE style1, TSMS_STYLE style2) {
 
 TSMS_STYLE TSMS_STYLE_getStyle(pGuiElement element) {
 	if (element->parent == TSMS_NULL)
-		return element->style;
+		return TSMS_MUTABLE_STYLE_get(element->style);
 	TSMS_STYLE parentStyle = element->parent->computedStyle;
-	TSMS_STYLE style = element->style;
+	TSMS_STYLE style = TSMS_MUTABLE_STYLE_get(element->style);
 	if (style.width == TSMS_STYLE_INHERIT)
 		style.width = parentStyle.width;
 	if (style.height == TSMS_STYLE_INHERIT)

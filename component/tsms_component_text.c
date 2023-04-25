@@ -91,7 +91,8 @@ pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pMutable text) {
 	t->render = __tsms_internal_text_render;
 	t->parent = TSMS_NULL;
 	t->children = TSMS_NULL;
-	t->style = style;
+	t->style = TSMS_MUTABLE_STYLE_create(style);
+	TSMS_MUTABLE_STYLE_setSetterCallback(t->style, TSMS_GUI_defaultStyleUpdateCallback, t);
 	t->lastStyle = style;
 	t->computedStyle = style;
 	t->requestRender = true;
