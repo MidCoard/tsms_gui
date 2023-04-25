@@ -77,4 +77,6 @@ TSMS_RESULT TSMS_GUI_draw(pGui gui);
 
 TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element, TSMS_STYLE style);
 
+bool TSMS_GUI_equalsGrid(TSMS_GRID_INFO grid1, TSMS_GRID_INFO grid2);
+
 #endif //TSMS_GUI_H

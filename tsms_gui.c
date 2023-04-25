@@ -41,6 +41,18 @@ TSMS_INLINE void __tsms_internal_request_render(pGuiElement element, bool parent
 	TSMS_LIST_add(TSMS_GUI_getGUI(element)->list, element);
 }
 
+TSMS_INLINE void __tsms_internal_check_render(pGuiElement element) {
+	if (element->requestRender)
+		return;
+	if (!TSMS_STYLE_equals(element->lastStyle, element->computedStyle) || !TSMS_GUI_equalsGrid(element->lastGrid, element->grid)) {
+		element->requestRender = true;
+		return;
+	}
+	if (element->children != TSMS_NULL)
+		for (TSMS_POS i = 0; i < element->children->length; i++)
+			__tsms_internal_check_render(element->children->list[i]);
+}
+
 void TSMS_GUI_defaultStyleUpdateCallback(pMutableStyle style, TSMS_STYLE data, void * handler) {
 	pGuiElement element = (pGuiElement) handler;
 	element->requestRender = true;
@@ -220,6 +232,9 @@ TSMS_RESULT TSMS_GUI_draw(pGui gui) {
 	TSMS_LIST_clear(gui->list);
 	__tsms_internal_request_render(gui, false, 0);
 	gui->preRender(gui, 0, gui->display->screen->height, gui->display->screen->width, gui->display->screen->height);
+
+	__tsms_internal_check_render(gui);
+
 	TSMS_ALGORITHM_sort(gui->list, __tsms_internal_compare_grid_render_info);
 	TSMS_SIZE renderRange;
 	for (renderRange = 0; renderRange < gui->list->length; renderRange++) {
@@ -318,4 +333,8 @@ TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element, TSMS_STYLE style) {
 	                     grid.height - style.margin.top - style.margin.bottom - style.border.top - style.border.bottom - style.padding.top - style.padding.bottom,
 	                     style.backgroundColor, TSMS_NULL);
 	return TSMS_SUCCESS;
+}
+
+bool TSMS_GUI_equalsGrid(TSMS_GRID_INFO grid1, TSMS_GRID_INFO grid2) {
+	return grid1.x == grid2.x && grid1.y == grid2.y && grid1.width == grid2.width && grid1.height == grid2.height;
 }
