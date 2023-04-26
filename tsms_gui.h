@@ -26,7 +26,17 @@
 	TSMS_GUI_TOUCHABLE_CALLBACK longPressCallback; \
 	void * longPressHandler; \
 	TSMS_GUI_TOUCHABLE_CALLBACK doublePressCallback; \
-	void * doublePressHandler;
+	void * doublePressHandler; \
+	uint8_t press;
+
+#define TSMS_PRESS_STATE_PRESS 1
+
+#define TSMS_PRESS_STATE_LONG_PRESS 2
+
+#define TSMS_PRESS_STATE_PRESS_AND_RELEASE 4
+
+#define TSMS_PRESS_STATE_DOUBLE_PRESS 8
+
 typedef enum {
 	TSMS_GUI_TYPE_GUI, TSMS_GUI_TYPE_TOUCHABLE, TSMS_GUI_TYPE_TEXT
 } TSMS_GUI_TYPE;

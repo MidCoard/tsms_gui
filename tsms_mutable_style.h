@@ -10,9 +10,8 @@ typedef void(*TSMS_MUTABLE_STYLE_CALLBACK)(pMutableStyle, TSMS_STYLE, void * han
 
 struct TSMS_MUTABLE_STYLE {
 	TSMS_STYLE style;
-	TSMS_MUTABLE_STYLE_CALLBACK setterCallback;
-	void *setterHandler;
-	void *getterHandler;
+	TSMS_MUTABLE_STYLE_CALLBACK callback;
+	void *handler;
 };
 
 pMutableStyle TSMS_MUTABLE_STYLE_create(TSMS_STYLE style);

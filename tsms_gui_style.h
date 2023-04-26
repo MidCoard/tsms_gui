@@ -61,6 +61,8 @@ typedef struct {
 	TSMS_STYLE_BORDER border;
 	TSMS_STYLE_PADDING padding;
 	TSMS_COLOR backgroundColor;
+	TSMS_COLOR pressedColor;
+	TSMS_COLOR releasedColor;
 	uint16_t width;
 	uint16_t height;
 	uint16_t maxWidth;

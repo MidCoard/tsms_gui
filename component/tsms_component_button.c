@@ -1,7 +1,25 @@
 #include "tsms_component_button.h"
 #include "tsms_list.h"
 
-pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text, TSMS_GUI_TOUCHABLE_CALLBACK callback,
+TSMS_INLINE void __tsms_internal_button_press(pGuiTouchableElement element, void* handler) {
+	pButton button = (pButton) element;
+	TSMS_STYLE style = TSMS_MUTABLE_STYLE_get(button->style);
+	// choose a press gray color
+	style.backgroundColor = style.pressedColor;
+	TSMS_MUTABLE_STYLE_set(button->style, style);
+}
+
+TSMS_INLINE void __tsms_internal_button_release(pGuiTouchableElement element, void* handler) {
+	pButton button = (pButton) element;
+	TSMS_STYLE style = TSMS_MUTABLE_STYLE_get(button->style);
+	// choose a release gray color
+	style.backgroundColor = style.releasedColor;
+	TSMS_MUTABLE_STYLE_set(button->style, style);
+	if (button->callback != TSMS_NULL)
+		button->callback(button, button->handler);
+}
+
+pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text, TSMS_BUTTON_CALLBACK callback,
                                     void *handler) {
 	pButton button = (pButton) malloc(sizeof(tButton));
 	if (button == TSMS_NULL) {
@@ -25,25 +43,27 @@ pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text, TSMS_GUI_TOUCH
 	button->gui = TSMS_NULL;
 	button->level = 0;
 
-	button->releaseCallback = callback;
-	button->releaseHandler = handler;
+	button->releaseCallback = __tsms_internal_button_release;
+	button->releaseHandler = button;
 
-	button->pressCallback = TSMS_NULL;
-	button->pressHandler = TSMS_NULL;
+	button->pressCallback = __tsms_internal_button_press;
+	button->pressHandler = button;
 
 	button->longPressCallback = TSMS_NULL;
 	button->longPressHandler = TSMS_NULL;
 
 	button->doublePressCallback = TSMS_NULL;
 	button->doublePressHandler = TSMS_NULL;
+	button->press = 0;
 
-
+	button->callback = callback;
+	button->handler = handler;
 	button->text = text;
 
 	TSMS_GUI_add(button, text);
 	return button;
 }
 
-pButton TSMS_BUTTON_create(pText text, TSMS_GUI_TOUCHABLE_CALLBACK callback, void * handler) {
+pButton TSMS_BUTTON_create(pText text, TSMS_BUTTON_CALLBACK callback, void * handler) {
 	return TSMS_BUTTON_createWithStyle(TSMS_STYLE_DEFAULT_BUTTON, text, callback, handler);
 }

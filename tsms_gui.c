@@ -81,8 +81,30 @@ TSMS_INLINE void __tsms_internal_touch_callback(TSMS_THP touch, uint8_t id, uint
 	pGui gui = handler;
 	for (TSMS_POS i = 0; i < gui->touchableList->length; i++) {
 		pGuiTouchableElement element = gui->touchableList->list[i];
-		if (element->callback != TSMS_NULL && TSMS_GUI_inGrid(element->grid, x, y))
-			element->callback(element, element->handler);
+		if (state == TSMS_TOUCH_STATE_PRESS) {
+			if (element->press == TSMS_PRESS_STATE_PRESS_AND_RELEASE) {
+				if(element->doublePressCallback != TSMS_NULL && TSMS_GUI_inGrid(element->grid, x, y))
+					element->doublePressCallback(element, element->doublePressHandler);
+				element->press = TSMS_PRESS_STATE_DOUBLE_PRESS;
+			}
+			if (element->press == 0) {
+				if (element->pressCallback != TSMS_NULL && TSMS_GUI_inGrid(element->grid, x, y))
+					element->pressCallback(element, element->pressHandler);
+				element->press = TSMS_PRESS_STATE_PRESS;
+			}
+		} else if (state == TSMS_TOUCH_STATE_RELEASE) {
+			if (element->releaseCallback != TSMS_NULL && TSMS_GUI_inGrid(element->grid, x, y))
+				element->releaseCallback(element, element->releaseHandler);
+			if (element->press == TSMS_PRESS_STATE_PRESS)
+				element->press = TSMS_PRESS_STATE_PRESS_AND_RELEASE;
+			else
+				element->press = 0;
+		} else if (state == TSMS_TOUCH_STATE_LONG_PRESS) {
+			if (element->longPressCallback != TSMS_NULL && TSMS_GUI_inGrid(element->grid, x, y)) {
+				element->longPressCallback(element, element->longPressHandler);
+				element->press = TSMS_PRESS_STATE_LONG_PRESS;
+			}
+		}
 	}
 }
 
