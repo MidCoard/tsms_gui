@@ -2,6 +2,7 @@
 #define TSMS_GUI_H
 
 #define TSMS_EXTEND_GUI_ELEMENT \
+    TSMS_GUI_TYPE type;  \
 	TSMS_GUI_PRE_RENDER_FUNCTION preRender;   \
 	TSMS_GUI_RENDER_FUNCTION render; \
 	pGuiElement parent; \
@@ -16,16 +17,37 @@
 	pGui gui; \
 	uint8_t level;
 
+#define TSMS_EXTEND_GUI_TOUCHABLE_ELEMENT \
+	TSMS_EXTEND_GUI_ELEMENT \
+	TSMS_GUI_TOUCHABLE_CALLBACK pressCallback; \
+	void * pressHandler; \
+	TSMS_GUI_TOUCHABLE_CALLBACK releaseCallback; \
+	void * releaseHandler; \
+	TSMS_GUI_TOUCHABLE_CALLBACK longPressCallback; \
+	void * longPressHandler; \
+	TSMS_GUI_TOUCHABLE_CALLBACK doublePressCallback; \
+	void * doublePressHandler;
+typedef enum {
+	TSMS_GUI_TYPE_GUI, TSMS_GUI_TYPE_TOUCHABLE, TSMS_GUI_TYPE_TEXT
+} TSMS_GUI_TYPE;
+
 typedef struct TSMS_GUI tGui;
 typedef tGui * pGui;
 
 typedef struct TSMS_GUI_ELEMENT tGuiElement;
 typedef tGuiElement * pGuiElement;
 
+typedef struct TSMS_GUI_TOUCHABLE_ELEMENT tGuiTouchableElement;
+typedef tGuiTouchableElement * pGuiTouchableElement;
+
+typedef void(*TSMS_GUI_TOUCHABLE_CALLBACK)(pGuiTouchableElement , void *);
+
 #include "tsms_lock.h"
 
 typedef TSMS_RESULT (*TSMS_GUI_RENDER_FUNCTION)(pGuiElement element, pLock lock);
 
+
+#include "tsms_native_mutable.h"
 #include "tsms_mutable_style.h"
 #include "tsms_lock.h"
 #include "tsms_display.h"
@@ -49,14 +71,20 @@ struct TSMS_GUI {
 	TSMS_EXTEND_GUI_ELEMENT
 	TSMS_DPHP display;
 	TSMS_LP list;
-// we support 100 elements render
+	TSMS_LP touchableList;
 };
 
 struct TSMS_GUI_ELEMENT {
 	TSMS_EXTEND_GUI_ELEMENT
 };
 
+struct TSMS_GUI_TOUCHABLE_ELEMENT {
+	TSMS_EXTEND_GUI_TOUCHABLE_ELEMENT
+};
+
 typedef TSMS_GRID_INFO * pGridInfo;
+
+bool TSMS_GUI_inGrid(TSMS_GRID_INFO grid, uint16_t x, uint16_t y);
 
 void TSMS_GUI_defaultStyleUpdateCallback(pMutableStyle style, TSMS_STYLE data, void * handler);
 

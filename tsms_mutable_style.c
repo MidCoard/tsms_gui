@@ -29,24 +29,14 @@ TSMS_RESULT TSMS_MUTABLE_STYLE_set(pMutableStyle mutableStyle, TSMS_STYLE style)
 TSMS_STYLE TSMS_MUTABLE_STYLE_get(pMutableStyle mutableStyle) {
 	if (mutableStyle == TSMS_NULL)
 		return TSMS_STYLE_DEFAULT;
-	if (mutableStyle->getterCallback != TSMS_NULL)
-		mutableStyle->getterCallback(mutableStyle, mutableStyle->getterHandler);
 	return mutableStyle->style;
 }
 
-TSMS_RESULT TSMS_MUTABLE_STYLE_setSetterCallback(pMutableStyle mutableStyle, TSMS_MUTABLE_STYLE_SETTER_CALLBACK callback, void * handler) {
+TSMS_RESULT TSMS_MUTABLE_STYLE_setCallback(pMutableStyle mutableStyle, TSMS_MUTABLE_STYLE_CALLBACK callback, void * handler) {
 	if (mutableStyle == TSMS_NULL)
 		return TSMS_ERROR;
 	mutableStyle->setterCallback = callback;
 	mutableStyle->setterHandler = handler;
-	return TSMS_SUCCESS;
-}
-
-TSMS_RESULT TSMS_MUTABLE_STYLE_setGetterCallback(pMutableStyle mutableStyle, TSMS_MUTABLE_STYLE_GETTER_CALLBACK callback, void * handler) {
-	if (mutableStyle == TSMS_NULL)
-		return TSMS_ERROR;
-	mutableStyle->getterCallback = callback;
-	mutableStyle->getterHandler = handler;
 	return TSMS_SUCCESS;
 }
 

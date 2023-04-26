@@ -4,6 +4,7 @@
 #include "tsms_lock.h"
 #include "tsms_math.h"
 #include "tsms_algorithm.h"
+#include "tsms_printer.h"
 
 TSMS_GRID_INFO TSMS_GUI_INVALID_GRID = {0, 0, 0, 0, 0, TSMS_DISPLAY_TYPE_BLOCK};
 
@@ -69,13 +70,24 @@ TSMS_INLINE void __tsms_internal_check_render(pGuiElement element) {
 
 TSMS_INLINE void __tsms_internal_add_render_entity(pGui gui, pGuiElement element) {
 	TSMS_LIST_add(gui->list, element);
+	if (element->type == TSMS_GUI_TYPE_TOUCHABLE)
+		TSMS_LIST_add(gui->touchableList, element);
 	if (element->children != TSMS_NULL)
 		for (TSMS_POS i = 0; i < element->children->length; i++)
 			__tsms_internal_add_render_entity(gui, element->children->list[i]);
 }
 
-TSMS_INLINE bool __tsms_internal_touch_callback(TSMS_THP touch, uint8_t id, uint16_t x, uint16_t y, uint16_t size, void * handler) {
-	return true;
+TSMS_INLINE void __tsms_internal_touch_callback(TSMS_THP touch, uint8_t id, uint16_t x, uint16_t y, uint16_t size, TSMS_TOUCH_STATE state, void * handler) {
+	pGui gui = handler;
+	for (TSMS_POS i = 0; i < gui->touchableList->length; i++) {
+		pGuiTouchableElement element = gui->touchableList->list[i];
+		if (element->callback != TSMS_NULL && TSMS_GUI_inGrid(element->grid, x, y))
+			element->callback(element, element->handler);
+	}
+}
+
+bool TSMS_GUI_inGrid(TSMS_GRID_INFO grid, uint16_t x, uint16_t y) {
+	return x >= grid.x && x < grid.x + grid.width && y >= grid.y && y < grid.y + grid.height;
 }
 
 void TSMS_GUI_defaultStyleUpdateCallback(pMutableStyle style, TSMS_STYLE data, void * handler) {
@@ -211,12 +223,13 @@ pGui TSMS_GUI_create(TSMS_DPHP display) {
 		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
+	gui->type = TSMS_GUI_TYPE_GUI;
 	gui->preRender = TSMS_GUI_defaultPreRender;
 	gui->render = TSMS_GUI_defaultRender;
 	gui->parent = TSMS_NULL;
 	gui->children = TSMS_LIST_create(10);
 	gui->style = TSMS_MUTABLE_STYLE_create(TSMS_STYLE_DEFAULT);
-	TSMS_MUTABLE_STYLE_setSetterCallback(gui->style, TSMS_GUI_defaultStyleUpdateCallback, gui);
+	TSMS_MUTABLE_STYLE_setCallback(gui->style, TSMS_GUI_defaultStyleUpdateCallback, gui);
 	gui->lastStyle = TSMS_STYLE_DEFAULT;
 	gui->computedStyle = TSMS_STYLE_DEFAULT;
 	gui->requestRender = true;
@@ -228,6 +241,7 @@ pGui TSMS_GUI_create(TSMS_DPHP display) {
 
 	gui->display = display;
 	gui->list = TSMS_LIST_create(10);
+	gui->touchableList = TSMS_LIST_create(10);
 	TSMS_TOUCH_setCallback(display->touch, __tsms_internal_touch_callback, gui);
 	return gui;
 }

@@ -10,9 +10,7 @@ pMutable TSMS_MUTABLE_create(void * data, TSMS_FREE_FUNCTION freeFunction) {
 	mutable->data = data;
 	mutable->freeFunction = freeFunction;
 	mutable->setterCallback = TSMS_NULL;
-	mutable->getterCallback = TSMS_NULL;
 	mutable->setterHandler = TSMS_NULL;
-	mutable->getterHandler = TSMS_NULL;
 	return mutable;
 }
 
@@ -34,23 +32,13 @@ TSMS_RESULT TSMS_MUTABLE_set(pMutable mutable, void * data) {
 void * TSMS_MUTABLE_get(pMutable mutable) {
 	if (mutable == TSMS_NULL)
 		return TSMS_NULL;
-	if (mutable->getterCallback != TSMS_NULL)
-		mutable->getterCallback(mutable, mutable->getterHandler);
 	return mutable->data;
 }
 
-TSMS_RESULT TSMS_MUTABLE_setSetterCallback(pMutable mutable, TSMS_MUTABLE_SETTER_CALLBACK callback, void * handler) {
+TSMS_RESULT TSMS_MUTABLE_setSetterCallback(pMutable mutable, TSMS_MUTABLE_CALLBACK callback, void * handler) {
 	if (mutable == TSMS_NULL)
 		return TSMS_ERROR;
 	mutable->setterCallback = callback;
 	mutable->setterHandler = handler;
-	return TSMS_SUCCESS;
-}
-
-TSMS_RESULT TSMS_MUTABLE_setGetterCallback(pMutable mutable, TSMS_MUTABLE_GETTER_CALLBACK callback, void * handler) {
-	if (mutable == TSMS_NULL)
-		return TSMS_ERROR;
-	mutable->getterCallback = callback;
-	mutable->getterHandler = handler;
 	return TSMS_SUCCESS;
 }

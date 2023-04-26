@@ -91,12 +91,13 @@ pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pMutable text) {
 		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
+	t->type = TSMS_GUI_TYPE_TEXT;
 	t->preRender = __tsms_internal_text_pre_render;
 	t->render = __tsms_internal_text_render;
 	t->parent = TSMS_NULL;
 	t->children = TSMS_NULL;
 	t->style = TSMS_MUTABLE_STYLE_create(style);
-	TSMS_MUTABLE_STYLE_setSetterCallback(t->style, TSMS_GUI_defaultStyleUpdateCallback, t);
+	TSMS_MUTABLE_STYLE_setCallback(t->style, TSMS_GUI_defaultStyleUpdateCallback, t);
 	t->lastStyle = style;
 	t->computedStyle = style;
 	t->requestRender = true;
