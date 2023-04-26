@@ -64,7 +64,7 @@ TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element, pLock l
 			}
 			TSMS_SCREEN_drawCharTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x + currentRowWidth,
 			                            grid.y - currentColumnHeight,
-			                            style.font.type, style.font.font, t->cStr[i], style.font.color,
+			                            style.font.type, style.font.font, t->cStr[i], *style.font.color,
 			                            style.font.size, lock);
 			currentRowWidth += width;
 			maxHeight = height > maxHeight ? height : maxHeight;

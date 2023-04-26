@@ -27,8 +27,9 @@
 	void * longPressHandler; \
 	TSMS_GUI_TOUCHABLE_CALLBACK doublePressCallback; \
 	void * doublePressHandler; \
-	uint8_t press;
-
+	uint8_t press; \
+	TSMS_ILP points; \
+	double lastUpdate;
 #define TSMS_PRESS_STATE_PRESS 1
 
 #define TSMS_PRESS_STATE_LONG_PRESS 2
@@ -36,6 +37,8 @@
 #define TSMS_PRESS_STATE_PRESS_AND_RELEASE 4
 
 #define TSMS_PRESS_STATE_DOUBLE_PRESS 8
+
+#define TSMS_GUI_DOUBLE_PRESS_TIME 0.2
 
 typedef enum {
 	TSMS_GUI_TYPE_GUI, TSMS_GUI_TYPE_TOUCHABLE, TSMS_GUI_TYPE_TEXT
@@ -61,7 +64,7 @@ typedef TSMS_RESULT (*TSMS_GUI_RENDER_FUNCTION)(pGuiElement element, pLock lock)
 #include "tsms_mutable_style.h"
 #include "tsms_lock.h"
 #include "tsms_display.h"
-#include "tsms_set.h"
+#include "tsms_int_list.h"
 
 typedef struct {
 	uint16_t x;
@@ -82,6 +85,7 @@ struct TSMS_GUI {
 	TSMS_DPHP display;
 	TSMS_LP list;
 	TSMS_LP touchableList;
+	pLock lock;
 };
 
 struct TSMS_GUI_ELEMENT {

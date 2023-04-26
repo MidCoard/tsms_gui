@@ -1,19 +1,22 @@
 #include "tsms_component_button.h"
 #include "tsms_list.h"
+#include "tsms_printer.h"
 
 TSMS_INLINE void __tsms_internal_button_press(pGuiTouchableElement element, void* handler) {
 	pButton button = (pButton) element;
 	TSMS_STYLE style = TSMS_MUTABLE_STYLE_get(button->style);
-	// choose a press gray color
+	print("press me\n");
 	style.backgroundColor = style.pressedColor;
+	style.padding.color = style.pressedColor;
 	TSMS_MUTABLE_STYLE_set(button->style, style);
 }
 
 TSMS_INLINE void __tsms_internal_button_release(pGuiTouchableElement element, void* handler) {
 	pButton button = (pButton) element;
 	TSMS_STYLE style = TSMS_MUTABLE_STYLE_get(button->style);
-	// choose a release gray color
+	print("release me\n");
 	style.backgroundColor = style.releasedColor;
+	style.padding.color = style.releasedColor;
 	TSMS_MUTABLE_STYLE_set(button->style, style);
 	if (button->callback != TSMS_NULL)
 		button->callback(button, button->handler);
@@ -55,6 +58,8 @@ pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text, TSMS_BUTTON_CA
 	button->doublePressCallback = TSMS_NULL;
 	button->doublePressHandler = TSMS_NULL;
 	button->press = 0;
+	button->points = TSMS_INT_LIST_create(1);
+	button->lastUpdate = 0;
 
 	button->callback = callback;
 	button->handler = handler;

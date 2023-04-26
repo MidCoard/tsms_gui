@@ -3,6 +3,7 @@
 
 #define TSMS_STYLE_AUTO 0xFFFF
 #define TSMS_STYLE_INHERIT 0xFFFE
+#define TSMS_STYLE_COLOR_INHERT TSMS_NULL
 #define TSMS_STYLE_FONT_TYPE_INHERIT TSMS_FONT_TYPE_INVALID
 #define TSMS_STYLE_FONT_SIZE_INHERIT 0xFF
 #define TSMS_STYLE_FONT_INHERIT TSMS_NULL
@@ -30,7 +31,7 @@ typedef struct {
 	uint16_t right;
 	uint16_t bottom;
 	uint16_t left;
-	TSMS_COLOR color;
+	TSMS_COLOR* color;
 } TSMS_STYLE_MARGIN;
 
 typedef struct {
@@ -38,7 +39,7 @@ typedef struct {
 	uint16_t right;
 	uint16_t bottom;
 	uint16_t left;
-	TSMS_COLOR color;
+	TSMS_COLOR* color;
 } TSMS_STYLE_PADDING;
 
 typedef struct {
@@ -46,23 +47,23 @@ typedef struct {
 	uint16_t right;
 	uint16_t bottom;
 	uint16_t left;
-	TSMS_COLOR color;
+	TSMS_COLOR* color;
 } TSMS_STYLE_BORDER;
 
 typedef struct {
 	TSMS_FONT_TYPE type;
 	TSMS_FONT_SIZE size;
 	void * font;
-	TSMS_COLOR color;
+	TSMS_COLOR* color;
 } TSMS_STYLE_FONT;
 
 typedef struct {
 	TSMS_STYLE_MARGIN margin;
 	TSMS_STYLE_BORDER border;
 	TSMS_STYLE_PADDING padding;
-	TSMS_COLOR backgroundColor;
-	TSMS_COLOR pressedColor;
-	TSMS_COLOR releasedColor;
+	TSMS_COLOR* backgroundColor;
+	TSMS_COLOR* pressedColor;
+	TSMS_COLOR* releasedColor;
 	uint16_t width;
 	uint16_t height;
 	uint16_t maxWidth;

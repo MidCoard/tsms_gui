@@ -11,8 +11,8 @@ typedef void(*TSMS_MUTABLE_CALLBACK)(pMutable, void *, void * handler);
 
 struct TSMS_MUTABLE {
 	void * data;
-	TSMS_MUTABLE_CALLBACK setterCallback;
-	void *setterHandler;
+	TSMS_MUTABLE_CALLBACK callback;
+	void *handler;
 	TSMS_FREE_FUNCTION freeFunction;
 };
 
