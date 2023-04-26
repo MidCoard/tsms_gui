@@ -36,7 +36,7 @@ TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, 
 
 TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element, pLock lock) {
 	TSMS_STYLE style = element->computedStyle;
-	if (!TSMS_GUI_isInvalidGrid(element->grid) && element->grid.displayType == TSMS_DISPLAY_TYPE_BLOCK) {
+	if (!TSMS_GUI_isInvalidGrid(element->grid) && element->grid.displayType == TSMS_STYLE_DISPLAY_BLOCK) {
 		TSMS_GUI_renderStyle(element, style, lock);
 		pText text = (pText) element;
 		pString t = TSMS_MUTABLE_get(text->text);
@@ -72,7 +72,7 @@ TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element, pLock l
 	}
 
 	element->requestRender = false;
-	element->firstRender = false;
+	element->forceRender = false;
 	element->lastStyle = style;
 	element->lastGrid = element->grid;
 	return TSMS_SUCCESS;
@@ -101,7 +101,7 @@ pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pMutable text) {
 	t->lastStyle = style;
 	t->computedStyle = style;
 	t->requestRender = true;
-	t->firstRender = true;
+	t->forceRender = true;
 	t->grid = TSMS_GUI_INVALID_GRID;
 	t->lastGrid = TSMS_GUI_INVALID_GRID;
 	t->gui = TSMS_NULL;

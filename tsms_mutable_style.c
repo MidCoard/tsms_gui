@@ -51,12 +51,12 @@ TSMS_RESULT TSMS_MUTABLE_STYLE_setFont(pMutableStyle mutableStyle, TSMS_STYLE_FO
 	return TSMS_SUCCESS;
 }
 
-TSMS_RESULT TSMS_MUTABLE_STYLE_setDisplayType(pMutableStyle mutableStyle, TSMS_DISPLAY_TYPE displayType) {
+TSMS_RESULT TSMS_MUTABLE_STYLE_setDisplayType(pMutableStyle mutableStyle, TSMS_STYLE_DISPLAY displayType) {
 	if (mutableStyle == TSMS_NULL)
 		return TSMS_ERROR;
-	if (mutableStyle->style.displayType != displayType) {
+	if (mutableStyle->style.display != displayType) {
 		TSMS_STYLE newStyle = mutableStyle->style;
-		newStyle.displayType = displayType;
+		newStyle.display = displayType;
 		if (mutableStyle->callback != TSMS_NULL)
 			mutableStyle->callback(mutableStyle, newStyle, mutableStyle->handler);
 		mutableStyle->style = newStyle;

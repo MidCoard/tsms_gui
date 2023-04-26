@@ -11,7 +11,7 @@
 	TSMS_STYLE lastStyle; \
 	TSMS_STYLE computedStyle; \
 	bool requestRender; \
-	bool firstRender; \
+	bool forceRender; \
 	TSMS_GRID_INFO grid; \
 	TSMS_GRID_INFO lastGrid; \
 	pGui gui; \
@@ -41,7 +41,7 @@
 #define TSMS_GUI_DOUBLE_PRESS_TIME 0.2
 
 typedef enum {
-	TSMS_GUI_TYPE_GUI, TSMS_GUI_TYPE_TOUCHABLE, TSMS_GUI_TYPE_TEXT
+	TSMS_GUI_TYPE_GUI = 0,TSMS_GUI_TYPE_CONTAINER, TSMS_GUI_TYPE_ROW, TSMS_GUI_TYPE_COLUMN, TSMS_GUI_TYPE_TOUCHABLE, TSMS_GUI_TYPE_TEXT
 } TSMS_GUI_TYPE;
 
 typedef struct TSMS_GUI tGui;
@@ -72,7 +72,7 @@ typedef struct {
 	uint16_t width;
 	uint16_t height;
 	uint16_t zIndex;
-	TSMS_DISPLAY_TYPE displayType;
+	TSMS_STYLE_DISPLAY displayType;
 	// x y should be top left
 } TSMS_GRID_INFO;
 
@@ -104,11 +104,7 @@ void TSMS_GUI_defaultStyleUpdateCallback(pMutableStyle style, TSMS_STYLE data, v
 
 pGui TSMS_GUI_getGUI(pGuiElement element);
 
-TSMS_RESULT TSMS_GUI_defaultRender(pGuiElement element, pLock lock);
-
 bool TSMS_GUI_isInvalidGrid(TSMS_GRID_INFO grid);
-
-TSMS_GRID_INFO TSMS_GUI_defaultPreRender(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight);
 
 TSMS_GRID_INFO TSMS_GUI_calcGrid(pGuiElement element, TSMS_STYLE style, uint16_t x, uint16_t y, uint16_t boxWidth, uint16_t boxHeight, uint16_t parentWidth, uint16_t parentHeight);
 

@@ -1,6 +1,7 @@
 #include "tsms_component_button.h"
 #include "tsms_list.h"
 #include "tsms_printer.h"
+#include "tsms_component_container.h"
 
 TSMS_INLINE void __tsms_internal_button_press(pGuiTouchableElement element, void* handler) {
 	pButton button = (pButton) element;
@@ -31,8 +32,8 @@ pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text, TSMS_BUTTON_CA
 		return TSMS_NULL;
 	}
 	button->type = TSMS_GUI_TYPE_TOUCHABLE;
-	button->preRender = TSMS_GUI_defaultPreRender;
-	button->render = TSMS_GUI_defaultRender;
+	button->preRender = TSMS_CONTAINER_preRender;
+	button->render = TSMS_CONTAINER_render;
 	button->parent = TSMS_NULL;
 	button->children = TSMS_LIST_create(1);
 	button->style = TSMS_MUTABLE_STYLE_create(style);
@@ -40,7 +41,7 @@ pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text, TSMS_BUTTON_CA
 	button->lastStyle = style;
 	button->computedStyle = style;
 	button->requestRender = true;
-	button->firstRender = true;
+	button->forceRender = true;
 	button->grid = TSMS_GUI_INVALID_GRID;
 	button->lastGrid = TSMS_GUI_INVALID_GRID;
 	button->gui = TSMS_NULL;

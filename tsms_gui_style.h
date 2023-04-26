@@ -7,24 +7,20 @@
 #define TSMS_STYLE_FONT_TYPE_INHERIT TSMS_FONT_TYPE_INVALID
 #define TSMS_STYLE_FONT_SIZE_INHERIT 0xFF
 #define TSMS_STYLE_FONT_INHERIT TSMS_NULL
-#define TSMS_STYLE_GRID_TYPE_INHERIT 0xFF
 
 typedef enum {
 	TSMS_STYLE_POSITION_RELATIVE = 0, TSMS_STYLE_POSITION_ABSOLUTE, TSMS_STYLE_POSITION_INHERIT
 } TSMS_STYLE_POSITION;
 
 typedef enum {
-	TSMS_GRID_TYPE_DEFAULT
-} TSMS_GRID_TYPE;
-
-typedef enum {
-	TSMS_DISPLAY_TYPE_NONE = 0, TSMS_DISPLAY_TYPE_BLOCK
-} TSMS_DISPLAY_TYPE;
+	TSMS_STYLE_DISPLAY_NONE = 0, TSMS_STYLE_DISPLAY_BLOCK
+} TSMS_STYLE_DISPLAY;
 
 typedef struct TSMS_GUI_ELEMENT* pGuiElement;
 
 #include "tsms_util.h"
 #include "tsms_font.h"
+#include "tsms_math.h"
 
 typedef struct {
 	uint16_t top;
@@ -75,15 +71,15 @@ typedef struct {
 	uint16_t zIndex; //  todo not take into consideration
 	uint16_t top;
 	uint16_t left;
-	TSMS_GRID_TYPE gridType;
-	TSMS_DISPLAY_TYPE displayType;
+	TSMS_STYLE_DISPLAY display;
 } TSMS_STYLE;
 
 extern TSMS_STYLE TSMS_STYLE_DEFAULT;
-
 extern TSMS_STYLE TSMS_STYLE_DEFAULT_BUTTON;
-
 extern TSMS_STYLE TSMS_STYLE_DEFAULT_TEXT;
+extern TSMS_STYLE TSMS_STYLE_DEFAULT_CONTAINER;
+extern TSMS_STYLE TSMS_STYLE_DEFAULT_ROW;
+extern TSMS_STYLE TSMS_STYLE_DEFAULT_COLUMN;
 
 uint16_t TSMS_STYLE_Y_ATTACHMENT(TSMS_STYLE style);
 
@@ -102,5 +98,9 @@ bool TSMS_STYLE_equals(TSMS_STYLE style1, TSMS_STYLE style2);
 TSMS_STYLE TSMS_STYLE_getStyle(pGuiElement element);
 
 bool TSMS_STYLE_equalsFont(TSMS_STYLE_FONT font1, TSMS_STYLE_FONT font2);
+
+uint16_t TSMS_STYLE_elementWidth(TSMS_STYLE style, uint16_t parentWidth);
+
+uint16_t TSMS_STYLE_elementHeight(TSMS_STYLE style, uint16_t parentHeight);
 
 #endif //TSMS_GUI_STYLE_H
