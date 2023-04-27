@@ -46,7 +46,7 @@ TSMS_GRID_INFO TSMS_CONTAINER_preRender(pGuiElement element, uint16_t x, uint16_
 
 TSMS_RESULT TSMS_CONTAINER_render(pGuiElement element, pLock lock) {
 	TSMS_STYLE style = element->computedStyle;
-	if (!TSMS_GUI_isInvalidGrid(element->grid) && element->grid.displayType == TSMS_STYLE_DISPLAY_NONE) {
+	if (!TSMS_GUI_isInvalidGrid(element->grid) && element->grid.displayType != TSMS_STYLE_DISPLAY_NONE) {
 		TSMS_GUI_renderStyle(element, style, lock);
 
 		for (TSMS_POS i = 0; i < element->children->length; i++) {
