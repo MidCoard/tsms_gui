@@ -15,7 +15,8 @@
 	TSMS_GRID_INFO grid; \
 	TSMS_GRID_INFO lastGrid; \
 	pGui gui; \
-	uint8_t level;
+	uint8_t level;                 \
+	TSMS_LP renderOperations;
 
 #define TSMS_EXTEND_GUI_TOUCHABLE_ELEMENT \
 	TSMS_EXTEND_GUI_ELEMENT \
@@ -44,6 +45,10 @@ typedef enum {
 	TSMS_GUI_TYPE_GUI = 0,TSMS_GUI_TYPE_CONTAINER, TSMS_GUI_TYPE_ROW, TSMS_GUI_TYPE_COLUMN, TSMS_GUI_TYPE_TOUCHABLE, TSMS_GUI_TYPE_TEXT
 } TSMS_GUI_TYPE;
 
+typedef enum {
+	TSMS_RENDER_OPERATION_TYPE_RECT, TSMS_RENDER_OPERATION_TYPE_CHAR, TSMS_RENDER_OPERATION_TYPE_STRING
+} TSMS_RENDER_OPERATION_TYPE;
+
 typedef struct TSMS_GUI tGui;
 typedef tGui * pGui;
 
@@ -53,20 +58,24 @@ typedef tGuiElement * pGuiElement;
 typedef struct TSMS_GUI_TOUCHABLE_ELEMENT tGuiTouchableElement;
 typedef tGuiTouchableElement * pGuiTouchableElement;
 
+typedef struct TSMS_RENDER_OPERATION tRenderOperation;
+typedef tRenderOperation * pRenderOperation;
+
+typedef struct TSMS_GRID_INFO TSMS_GRID_INFO;
+
 typedef void(*TSMS_GUI_TOUCHABLE_CALLBACK)(pGuiTouchableElement , void *);
 
 #include "tsms_lock.h"
 
 typedef TSMS_RESULT (*TSMS_GUI_RENDER_FUNCTION)(pGuiElement element, pLock lock);
-
+typedef TSMS_GRID_INFO (*TSMS_GUI_PRE_RENDER_FUNCTION)(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight);
 
 #include "tsms_native_mutable.h"
 #include "tsms_mutable_style.h"
-#include "tsms_lock.h"
 #include "tsms_display.h"
 #include "tsms_int_list.h"
 
-typedef struct {
+struct TSMS_GRID_INFO {
 	uint16_t x;
 	uint16_t y;
 	uint16_t width;
@@ -74,11 +83,14 @@ typedef struct {
 	uint16_t zIndex;
 	TSMS_STYLE_DISPLAY displayType;
 	// x y should be top left
-} TSMS_GRID_INFO;
+};
 
-extern TSMS_GRID_INFO TSMS_GUI_INVALID_GRID;
+struct TSMS_RENDER_OPERATION {
+	TSMS_RENDER_OPERATION_TYPE type;
+	uint8_t size;
+	uint8_t * data;
+};
 
-typedef TSMS_GRID_INFO (*TSMS_GUI_PRE_RENDER_FUNCTION)(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight);
 
 struct TSMS_GUI {
 	TSMS_EXTEND_GUI_ELEMENT
@@ -96,11 +108,11 @@ struct TSMS_GUI_TOUCHABLE_ELEMENT {
 	TSMS_EXTEND_GUI_TOUCHABLE_ELEMENT
 };
 
-typedef TSMS_GRID_INFO * pGridInfo;
+extern TSMS_GRID_INFO TSMS_GUI_INVALID_GRID;
 
 bool TSMS_GUI_inGrid(TSMS_GRID_INFO grid, uint16_t x, uint16_t y);
 
-void TSMS_GUI_defaultStyleUpdateCallback(pMutableStyle style, TSMS_STYLE data, void * handler);
+void TSMS_GUI_defaultStyleCallback(pMutableStyle style, TSMS_STYLE data, void * handler);
 
 pGui TSMS_GUI_getGUI(pGuiElement element);
 
@@ -117,5 +129,8 @@ TSMS_RESULT TSMS_GUI_draw(pGui gui);
 TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element, TSMS_STYLE style, pLock lock);
 
 bool TSMS_GUI_equalsGrid(TSMS_GRID_INFO grid1, TSMS_GRID_INFO grid2);
+
+pRenderOperation TSMS_GUI_createChatRenderOperation(uint16_t x, uint16_t y, )
+
 
 #endif //TSMS_GUI_H

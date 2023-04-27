@@ -115,7 +115,7 @@ bool TSMS_GUI_inGrid(TSMS_GRID_INFO grid, uint16_t x, uint16_t y) {
 	return x >= grid.x && x < grid.x + grid.width && y <= grid.y && y > grid.y - grid.height;
 }
 
-void TSMS_GUI_defaultStyleUpdateCallback(pMutableStyle style, TSMS_STYLE data, void * handler) {
+void TSMS_GUI_defaultStyleCallback(pMutableStyle style, TSMS_STYLE data, void * handler) {
 	pGuiElement element = (pGuiElement) handler;
 	element->requestRender = true;
 }
@@ -172,7 +172,7 @@ pGui TSMS_GUI_create(TSMS_DPHP display) {
 	gui->parent = TSMS_NULL;
 	gui->children = TSMS_LIST_create(10);
 	gui->style = TSMS_MUTABLE_STYLE_create(TSMS_STYLE_DEFAULT);
-	TSMS_MUTABLE_STYLE_setCallback(gui->style, TSMS_GUI_defaultStyleUpdateCallback, gui);
+	TSMS_MUTABLE_STYLE_setCallback(gui->style, TSMS_GUI_defaultStyleCallback, gui);
 	gui->lastStyle = TSMS_STYLE_DEFAULT;
 	gui->computedStyle = TSMS_STYLE_DEFAULT;
 	gui->requestRender = true;
@@ -181,6 +181,7 @@ pGui TSMS_GUI_create(TSMS_DPHP display) {
 	gui->lastGrid = TSMS_GUI_INVALID_GRID;
 	gui->gui = gui;
 	gui->level = 0;
+	gui->renderOperations = TSMS_LIST_create(10);
 
 	gui->display = display;
 	gui->list = TSMS_LIST_create(10);

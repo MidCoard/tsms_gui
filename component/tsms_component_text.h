@@ -11,6 +11,7 @@ struct TSMS_TEXT {
 	TSMS_EXTEND_GUI_ELEMENT
 
 	pMutable text;
+	TSMS_LP list;
 };
 
 pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pMutable text);

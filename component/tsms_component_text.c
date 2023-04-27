@@ -2,6 +2,18 @@
 #include "tsms_font.h"
 #include "tsms_display.h"
 
+struct _textGridInfo {
+	uint16_t x;
+	uint16_t y;
+};
+
+TSMS_INLINE struct _textGridInfo* __tsms_internal_create_text_grid_info(uint16_t x, uint16_t y) {
+	struct _textGridInfo* info = malloc(sizeof(struct _textGridInfo));
+	info->x = x;
+	info->y = y;
+	return info;
+}
+
 TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight) {
 	TSMS_STYLE style = element->computedStyle;
 	pText text = (pText) element;
@@ -9,9 +21,12 @@ TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, 
 	if (t->length == 0)
 		return element->grid = TSMS_GUI_calcGrid(element,style, x, y, 0, 0, parentWidth, parentHeight);
 	uint16_t maxWidth = 0;
-	uint16_t currentRowWidth = 0;
+	uint16_t currentRowWidth = TSMS_STYLE_left(style);
 	uint16_t maxHeight = 0;
-	uint16_t currentColumnHeight = 0;
+	uint16_t currentColumnHeight = TSMS_STYLE_top(style);
+	for (TSMS_POS i = 0; i < text->list->length; i++)
+		free(text->list->list[i]);
+	TSMS_LIST_clear(text->list);
 	for (TSMS_POS i = 0; i < t->length; i++) {
 		TSMS_FONT_DATA font = TSMS_FONT_resolve(style.font.type, style.font.font, t->cStr[i]);
 		if (font.type == TSMS_FONT_TYPE_INVALID)
@@ -21,13 +36,14 @@ TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, 
 		if (width + currentRowWidth > parentWidth || height + currentColumnHeight > parentHeight) {
 			currentColumnHeight += maxHeight;
 			maxHeight = 0;
-			maxWidth = currentRowWidth > maxWidth ? currentRowWidth : maxWidth;
-			currentRowWidth = 0;
+			maxWidth = max(currentRowWidth, maxWidth);
+			currentRowWidth = TSMS_STYLE_left(style);
 			if (width + currentRowWidth > parentWidth || height + currentColumnHeight > parentHeight)
 				return element->grid = TSMS_GUI_INVALID_GRID;
 		}
+		TSMS_LIST_add(text->list, __tsms_internal_create_text_grid_info(x + currentRowWidth, y - currentColumnHeight));
 		currentRowWidth += width;
-		maxHeight = height > maxHeight ? height : maxHeight;
+		maxHeight = max(height, maxHeight);
 	}
 	if (currentRowWidth > 0)
 		maxWidth = currentRowWidth > maxWidth ? currentRowWidth : maxWidth;
@@ -42,32 +58,15 @@ TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element, pLock l
 		pString t = TSMS_MUTABLE_get(text->text);
 		if (t->length == 0)
 			return TSMS_SUCCESS;
-		TSMS_GRID_INFO grid = element->grid;
-		uint16_t maxWidth = 0;
-		uint16_t currentRowWidth = 0;
-		uint16_t maxHeight = 0;
-		uint16_t currentColumnHeight = 0;
-		// TODO: add cache
 		for (TSMS_POS i = 0; i < t->length; i++) {
 			TSMS_FONT_DATA font = TSMS_FONT_resolve(style.font.type, style.font.font, t->cStr[i]);
 			if (font.type == TSMS_FONT_TYPE_INVALID)
 				return TSMS_SUCCESS;
-			uint16_t width = font.width * style.font.size;
-			uint16_t height = font.height * style.font.size;
-			if (width + currentRowWidth > grid.width || height + currentColumnHeight > grid.height) {
-				currentColumnHeight += maxHeight;
-				maxHeight = 0;
-				maxWidth = currentRowWidth > maxWidth ? currentRowWidth : maxWidth;
-				currentRowWidth = 0;
-				if (width + currentRowWidth > grid.width || height + currentColumnHeight > grid.height)
-					break;
-			}
-			TSMS_SCREEN_drawCharTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x + currentRowWidth,
-			                            grid.y - currentColumnHeight,
+			struct _textGridInfo* info = text->list->list[i];
+			TSMS_SCREEN_drawCharTopLeft(TSMS_GUI_getGUI(element)->display->screen, info->x,
+			                            info->y,
 			                            style.font.type, style.font.font, t->cStr[i], *style.font.color,
 			                            style.font.size, lock);
-			currentRowWidth += width;
-			maxHeight = height > maxHeight ? height : maxHeight;
 		}
 	}
 
@@ -97,7 +96,7 @@ pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pMutable text) {
 	t->parent = TSMS_NULL;
 	t->children = TSMS_NULL;
 	t->style = TSMS_MUTABLE_STYLE_create(style);
-	TSMS_MUTABLE_STYLE_setCallback(t->style, TSMS_GUI_defaultStyleUpdateCallback, t);
+	TSMS_MUTABLE_STYLE_setCallback(t->style, TSMS_GUI_defaultStyleCallback, t);
 	t->lastStyle = style;
 	t->computedStyle = style;
 	t->requestRender = true;
@@ -106,9 +105,11 @@ pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pMutable text) {
 	t->lastGrid = TSMS_GUI_INVALID_GRID;
 	t->gui = TSMS_NULL;
 	t->level = 0;
+	t->renderOperations = TSMS_LIST_create(10);
 
 	TSMS_MUTABLE_setSetterCallback(text,__tsms_internal_text_callback, t);
 	t->text = text;
+	t->list = TSMS_LIST_create(10);
 	return t;
 }
 

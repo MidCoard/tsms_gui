@@ -75,6 +75,19 @@ pContainer TSMS_CONTAINER_createWithStyle(TSMS_STYLE style, bool ignoreInvalidGr
 	container->type = TSMS_GUI_TYPE_CONTAINER;
 	container->preRender = TSMS_CONTAINER_preRender;
 	container->render = TSMS_CONTAINER_render;
+	container->parent = TSMS_NULL;
+	container->children = TSMS_LIST_create(10);
+	container->style = TSMS_MUTABLE_STYLE_create(style);
+	TSMS_MUTABLE_STYLE_setCallback(container->style, TSMS_GUI_defaultStyleCallback, container);
+	container->lastStyle = style;
+	container->computedStyle = style;
+	container->requestRender = true;
+	container->forceRender = true;
+	container->grid = TSMS_GUI_INVALID_GRID;
+	container->lastGrid = TSMS_GUI_INVALID_GRID;
+	container->gui = TSMS_NULL;
+	container->level = 0;
+	container->renderOperations = TSMS_LIST_create(10);
 
 
 	container->ignoreInvalidGrid = ignoreInvalidGrid;

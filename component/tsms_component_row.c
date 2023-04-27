@@ -49,7 +49,7 @@ pRow TSMS_ROW_createWithStyle(TSMS_STYLE style) {
 	row->parent = TSMS_NULL;
 	row->children = TSMS_LIST_create(10);
 	row->style = TSMS_MUTABLE_STYLE_create(style);
-	TSMS_MUTABLE_STYLE_setCallback(row->style, TSMS_GUI_defaultStyleUpdateCallback, row);
+	TSMS_MUTABLE_STYLE_setCallback(row->style, TSMS_GUI_defaultStyleCallback, row);
 	row->lastStyle = style;
 	row->computedStyle = style;
 	row->requestRender = true;
@@ -58,6 +58,7 @@ pRow TSMS_ROW_createWithStyle(TSMS_STYLE style) {
 	row->lastGrid = TSMS_GUI_INVALID_GRID;
 	row->gui = TSMS_NULL;
 	row->level = 0;
+	row->renderOperations = TSMS_LIST_create(10);
 
 	row->list = TSMS_INT_LIST_create(10);
 	return row;
