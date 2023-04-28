@@ -35,7 +35,7 @@ void * TSMS_MUTABLE_get(pMutable mutable) {
 	return mutable->data;
 }
 
-TSMS_RESULT TSMS_MUTABLE_setSetterCallback(pMutable mutable, TSMS_MUTABLE_CALLBACK callback, void * handler) {
+TSMS_RESULT TSMS_MUTABLE_setCallback(pMutable mutable, TSMS_MUTABLE_CALLBACK callback, void * handler) {
 	if (mutable == TSMS_NULL)
 		return TSMS_ERROR;
 	mutable->callback = callback;

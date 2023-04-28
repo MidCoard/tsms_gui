@@ -16,13 +16,14 @@ pNativeMutable TSMS_NATIVE_MUTABLE_create(void * data, TSMS_SIZE size) {
 	}
 	nativeMutable->data = data;
 	nativeMutable->size = size;
-	nativeMutable->buffer = (uint8_t *) malloc(size);
+	nativeMutable->buffer = malloc(size);
 	if (nativeMutable->buffer == TSMS_NULL) {
 		TSMS_NATIVE_MUTABLE_release(nativeMutable);
 		tString temp = TSMS_STRING_temp("malloc failed for native mutable buffer");
 		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
+	memcpy(nativeMutable->buffer, data, size);
 	TSMS_LIST_add(_nativeMutableList, nativeMutable);
 	return nativeMutable;
 }
@@ -50,8 +51,8 @@ TSMS_RESULT TSMS_NATIVE_MUTABLE_refresh() {
 		pNativeMutable nativeMutable = _nativeMutableList->list[i];
 		if (memcmp(nativeMutable->data, nativeMutable->buffer, nativeMutable->size) != 0) {
 			if (nativeMutable->callback != TSMS_NULL)
-				nativeMutable->callback(nativeMutable->data, nativeMutable->buffer, nativeMutable->handler);
-			memcpy(nativeMutable->data, nativeMutable->buffer, nativeMutable->size);
+				nativeMutable->callback(nativeMutable, nativeMutable->buffer, nativeMutable->handler);
+			memcpy(nativeMutable->buffer, nativeMutable->data, nativeMutable->size);
 		}
 	}
 	return TSMS_SUCCESS;

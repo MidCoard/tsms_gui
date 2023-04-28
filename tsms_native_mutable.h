@@ -12,7 +12,7 @@ typedef void(*TSMS_NATIVE_MUTABLE_CALLBACK)(pNativeMutable, void *, void * handl
 struct TSMS_NATIVE_MUTABLE {
 	void * data;
 	TSMS_SIZE size;
-	uint8_t * buffer;
+	void * buffer;
 	TSMS_NATIVE_MUTABLE_CALLBACK callback;
 	void *handler;
 };

@@ -16,9 +16,10 @@ struct TSMS_BUTTON {
 	pText text;
 };
 
-pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text, TSMS_BUTTON_CALLBACK callback,
-                                    void *handler);
+pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text);
 
-pButton TSMS_BUTTON_create(pText text, TSMS_BUTTON_CALLBACK callback, void * handler);
+pButton TSMS_BUTTON_create(pText text);
+
+TSMS_RESULT TSMS_BUTTON_onClick(pButton button, TSMS_BUTTON_CALLBACK callback, void * handler);
 
 #endif //TSMS_COMPONENT_BUTTON_H

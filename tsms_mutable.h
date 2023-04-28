@@ -22,6 +22,6 @@ TSMS_RESULT TSMS_MUTABLE_set(pMutable mutable, void * data);
 
 void * TSMS_MUTABLE_get(pMutable mutable);
 
-TSMS_RESULT TSMS_MUTABLE_setSetterCallback(pMutable mutable, TSMS_MUTABLE_CALLBACK callback, void * handler);
+TSMS_RESULT TSMS_MUTABLE_setCallback(pMutable mutable, TSMS_MUTABLE_CALLBACK callback, void * handler);
 
 #endif //TSMS_MUTABLE_H

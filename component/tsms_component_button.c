@@ -23,8 +23,7 @@ TSMS_INLINE void __tsms_internal_button_release(pGuiTouchableElement element, vo
 		button->callback(button, button->handler);
 }
 
-pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text, TSMS_BUTTON_CALLBACK callback,
-                                    void *handler) {
+pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text) {
 	pButton button = (pButton) malloc(sizeof(tButton));
 	if (button == TSMS_NULL) {
 		tString temp = TSMS_STRING_temp("malloc failed for button");
@@ -63,14 +62,22 @@ pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text, TSMS_BUTTON_CA
 	button->points = TSMS_INT_LIST_create(1);
 	button->lastUpdate = 0;
 
-	button->callback = callback;
-	button->handler = handler;
+	button->callback = TSMS_NULL;
+	button->handler = TSMS_NULL;
 	button->text = text;
 
 	TSMS_GUI_add(button, text);
 	return button;
 }
 
-pButton TSMS_BUTTON_create(pText text, TSMS_BUTTON_CALLBACK callback, void * handler) {
-	return TSMS_BUTTON_createWithStyle(TSMS_STYLE_DEFAULT_BUTTON, text, callback, handler);
+pButton TSMS_BUTTON_create(pText text) {
+	return TSMS_BUTTON_createWithStyle(TSMS_STYLE_DEFAULT_BUTTON, text);
+}
+
+TSMS_RESULT TSMS_BUTTON_onClick(pButton button, TSMS_BUTTON_CALLBACK callback, void * handler) {
+	if (button == TSMS_NULL)
+		return TSMS_ERROR;
+	button->callback = callback;
+	button->handler = handler;
+	return TSMS_SUCCESS;
 }

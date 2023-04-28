@@ -17,7 +17,7 @@ TSMS_INLINE struct _textGridInfo* __tsms_internal_create_text_grid_info(uint16_t
 TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight) {
 	TSMS_STYLE style = element->computedStyle;
 	pText text = (pText) element;
-	pString t = TSMS_MUTABLE_get(text->text);
+	pString t = text->text;
 	if (t->length == 0)
 		return element->grid = TSMS_GUI_calcGrid(element,style, x, y, 0, 0, parentWidth, parentHeight);
 	uint16_t maxWidth = 0;
@@ -55,7 +55,7 @@ TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element, pLock l
 	if (!TSMS_GUI_isInvalidGrid(element->grid) && element->grid.displayType == TSMS_STYLE_DISPLAY_BLOCK) {
 		TSMS_GUI_renderStyle(element, style, lock);
 		pText text = (pText) element;
-		pString t = TSMS_MUTABLE_get(text->text);
+		pString t = text->text;
 		if (t->length == 0)
 			return TSMS_SUCCESS;
 		for (TSMS_POS i = 0; i < t->length; i++) {
@@ -78,13 +78,12 @@ TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element, pLock l
 	return TSMS_SUCCESS;
 }
 
-TSMS_INLINE void __tsms_internal_text_callback(pMutable mutable, void * data, void * handler) {
+TSMS_INLINE void __tsms_internal_text_callback(pNativeMutableString mutable, void * handler) {
 	pText text = (pText) handler;
-	if (!TSMS_STRING_equals(mutable->data, data))
-		text->requestRender = true;
+	text->requestRender = true;
 }
 
-pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pMutable text) {
+pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pString text) {
 	pText t = (pText) malloc(sizeof(tText));
 	if (t == TSMS_NULL){
 		tString temp = TSMS_STRING_temp("malloc failed for text");
@@ -108,12 +107,13 @@ pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pMutable text) {
 	t->level = 0;
 	t->renderOperations = TSMS_LIST_create(10);
 
-	TSMS_MUTABLE_setSetterCallback(text,__tsms_internal_text_callback, t);
+	pNativeMutableString nativeText = TSMS_NATIVE_MUTABLE_STRING_create(text);
+	TSMS_NATIVE_MUTABLE_STRING_setCallback(nativeText, __tsms_internal_text_callback, t);
 	t->text = text;
 	t->list = TSMS_LIST_create(10);
 	return t;
 }
 
-pText TSMS_TEXT_create(pMutable text) {
+pText TSMS_TEXT_create(pString text) {
 	return TSMS_TEXT_createWithStyle(TSMS_STYLE_DEFAULT_TEXT, text);
 }
