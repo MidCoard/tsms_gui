@@ -252,6 +252,7 @@ TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element, TSMS_STYLE style, pLock lo
 			ignoreMargin = true;
 			ignoreBorder = true;
 			ignorePadding = true;
+			ignoreBackground = true;
 		}
 	}
 
@@ -322,16 +323,81 @@ TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element, TSMS_STYLE style, pLock lo
 	}
 
 	// render background color
-	if (!ignoreBackground)
-		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
-		                     grid.x + style.margin.left + style.border.left + style.padding.left,
-		                     grid.y - style.margin.top - style.border.top - style.padding.top,
-		                     grid.width - style.margin.left - style.margin.right - style.border.left - style.border.right - style.padding.left - style.padding.right,
-		                     grid.height - style.margin.top - style.margin.bottom - style.border.top - style.border.bottom - style.padding.top - style.padding.bottom,
-		                     *style.backgroundColor, lock);
+//	if (!ignoreBackground)
+//		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
+//		                     grid.x + style.margin.left + style.border.left + style.padding.left,
+//		                     grid.y - style.margin.top - style.border.top - style.padding.top,
+//		                     grid.width - style.margin.left - style.margin.right - style.border.left - style.border.right - style.padding.left - style.padding.right,
+//		                     grid.height - style.margin.top - style.margin.bottom - style.border.top - style.border.bottom - style.padding.top - style.padding.bottom,
+//		                     *style.backgroundColor, lock);
 	return TSMS_SUCCESS;
 }
 
 bool TSMS_GUI_equalsGrid(TSMS_GRID_INFO grid1, TSMS_GRID_INFO grid2) {
 	return grid1.x == grid2.x && grid1.y == grid2.y && grid1.width == grid2.width && grid1.height == grid2.height;
+}
+
+pRenderOperation TSMS_GUI_createChatRenderOperation(uint16_t x, uint16_t y, TSMS_FONT_TYPE fontType, void *font, char c, TSMS_FONT_SIZE size) {
+	pRenderOperation operation = malloc(sizeof(tRenderOperation));
+	operation->type = TSMS_RENDER_OPERATION_TYPE_CHAR;
+	operation->size = sizeof(uint16_t) + sizeof(uint16_t) + sizeof(TSMS_FONT_TYPE) + sizeof(void *) + sizeof(char) + sizeof(TSMS_FONT_SIZE);
+	operation->data = malloc(operation->size);
+	uint16_t offset = 0;
+	memcpy(operation->data + offset, &x, sizeof(uint16_t));
+	offset += sizeof(uint16_t);
+	memcpy(operation->data + offset, &y, sizeof(uint16_t));
+	offset += sizeof(uint16_t);
+	memcpy(operation->data + offset, &fontType, sizeof(TSMS_FONT_TYPE));
+	offset += sizeof(TSMS_FONT_TYPE);
+	memcpy(operation->data + offset, &font, sizeof(void *));
+	offset += sizeof(void *);
+	memcpy(operation->data + offset, &c, sizeof(char));
+	offset += sizeof(char);
+	memcpy(operation->data + offset, &size, sizeof(TSMS_FONT_SIZE));
+	return operation;
+}
+
+pRenderOperation TSMS_GUI_createFillRectRenderOperation(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
+	pRenderOperation operation = malloc(sizeof(tRenderOperation));
+	operation->type = TSMS_RENDER_OPERATION_TYPE_FILL_RECT;
+	operation->size = sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint16_t);
+	operation->data = malloc(operation->size);
+	uint16_t offset = 0;
+	memcpy(operation->data + offset, &x, sizeof(uint16_t));
+	offset += sizeof(uint16_t);
+	memcpy(operation->data + offset, &y, sizeof(uint16_t));
+	offset += sizeof(uint16_t);
+	memcpy(operation->data + offset, &width, sizeof(uint16_t));
+	offset += sizeof(uint16_t);
+	memcpy(operation->data + offset, &height, sizeof(uint16_t));
+	return operation;
+}
+
+TSMS_RESULT TSMS_GUI_cancelRenderOperation(pGuiElement element, pRenderOperation operation, TSMS_STYLE style, pLock lock) {
+	if (operation == TSMS_NULL)
+		return TSMS_ERROR;
+	uint16_t offset = 0;
+	if (operation->type == TSMS_RENDER_OPERATION_TYPE_CHAR) {
+		uint16_t x = *((uint16_t *) (operation->data + offset));
+		offset += sizeof(uint16_t);
+		uint16_t y = *((uint16_t *) (operation->data + offset));
+		offset += sizeof(uint16_t);
+		TSMS_FONT_TYPE fontType = *((TSMS_FONT_TYPE *) (operation->data + offset));
+		offset += sizeof(TSMS_FONT_TYPE);
+		void *font = *((void **) (operation->data + offset));
+		offset += sizeof(void *);
+		char c = *((char *) (operation->data + offset));
+		offset += sizeof(char);
+		TSMS_FONT_SIZE size = *((TSMS_FONT_SIZE *) (operation->data + offset));
+		TSMS_SCREEN_drawCharTopLeft(TSMS_GUI_getGUI(element)->display->screen, x, y, fontType, font, c, *style.backgroundColor, size, lock);
+	}
+	return TSMS_SUCCESS;
+}
+
+TSMS_RESULT TSMS_GUI_releaseRenderOperation(pRenderOperation operation) {
+	if (operation == TSMS_NULL)
+		return TSMS_ERROR;
+	free(operation->data);
+	free(operation);
+	return TSMS_SUCCESS;
 }

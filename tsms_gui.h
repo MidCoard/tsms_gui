@@ -46,7 +46,7 @@ typedef enum {
 } TSMS_GUI_TYPE;
 
 typedef enum {
-	TSMS_RENDER_OPERATION_TYPE_RECT, TSMS_RENDER_OPERATION_TYPE_CHAR, TSMS_RENDER_OPERATION_TYPE_STRING
+	TSMS_RENDER_OPERATION_TYPE_FILL_RECT, TSMS_RENDER_OPERATION_TYPE_CHAR, TSMS_RENDER_OPERATION_TYPE_STRING
 } TSMS_RENDER_OPERATION_TYPE;
 
 typedef struct TSMS_GUI tGui;
@@ -130,7 +130,12 @@ TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element, TSMS_STYLE style, pLock lo
 
 bool TSMS_GUI_equalsGrid(TSMS_GRID_INFO grid1, TSMS_GRID_INFO grid2);
 
-pRenderOperation TSMS_GUI_createChatRenderOperation(uint16_t x, uint16_t y, )
+pRenderOperation TSMS_GUI_createChatRenderOperation(uint16_t x, uint16_t y, TSMS_FONT_TYPE fontType, void *font, char c, TSMS_FONT_SIZE size);
 
+pRenderOperation TSMS_GUI_createFillRectRenderOperation(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
+
+TSMS_RESULT TSMS_GUI_cancelRenderOperation(pGuiElement element, pRenderOperation operation, TSMS_STYLE style, pLock lock);
+
+TSMS_RESULT TSMS_GUI_releaseRenderOperation(pRenderOperation operation);
 
 #endif //TSMS_GUI_H

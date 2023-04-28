@@ -52,6 +52,12 @@ TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, 
 
 TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element, pLock lock) {
 	TSMS_STYLE style = element->computedStyle;
+	for (TSMS_POS i = 0; i < element->renderOperations->length; i++) {
+		pRenderOperation operation = element->renderOperations->list[i];
+		TSMS_GUI_cancelRenderOperation(element, operation, style, lock);
+		TSMS_GUI_releaseRenderOperation(operation);
+	}
+	TSMS_LIST_clear(element->renderOperations);
 	if (!TSMS_GUI_isInvalidGrid(element->grid) && element->grid.displayType == TSMS_STYLE_DISPLAY_BLOCK) {
 		TSMS_GUI_renderStyle(element, style, lock);
 		pText text = (pText) element;
@@ -67,6 +73,7 @@ TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element, pLock l
 			                            info->y,
 			                            style.font.type, style.font.font, t->cStr[i], *style.font.color,
 			                            style.font.size, lock);
+			TSMS_LIST_add(element->renderOperations, TSMS_GUI_createChatRenderOperation(info->x, info->y, style.font.type, style.font.font, t->cStr[i], style.font.size));
 		}
 	}
 
