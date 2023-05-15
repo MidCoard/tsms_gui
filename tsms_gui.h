@@ -31,14 +31,11 @@
 	uint8_t press; \
 	TSMS_ILP points; \
 	double lastUpdate;
+
 #define TSMS_PRESS_STATE_PRESS 1
-
 #define TSMS_PRESS_STATE_LONG_PRESS 2
-
 #define TSMS_PRESS_STATE_PRESS_AND_RELEASE 4
-
 #define TSMS_PRESS_STATE_DOUBLE_PRESS 8
-
 #define TSMS_GUI_DOUBLE_PRESS_TIME 0.2
 
 typedef enum {
@@ -130,7 +127,7 @@ TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element, TSMS_STYLE style, pLock lo
 
 bool TSMS_GUI_equalsGrid(TSMS_GRID_INFO grid1, TSMS_GRID_INFO grid2);
 
-pRenderOperation TSMS_GUI_createChatRenderOperation(uint16_t x, uint16_t y, TSMS_FONT_TYPE fontType, void *font, char c, TSMS_FONT_SIZE size);
+pRenderOperation TSMS_GUI_createCharRenderOperation(uint16_t x, uint16_t y, TSMS_FONT_TYPE fontType, void *font, char c, TSMS_FONT_SIZE size);
 
 pRenderOperation TSMS_GUI_createFillRectRenderOperation(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 

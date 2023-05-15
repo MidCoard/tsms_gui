@@ -67,7 +67,9 @@ TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element, pLock l
 			                            info->y,
 			                            style.font.type, style.font.font, t->cStr[i], *style.font.color,
 			                            style.font.size, lock);
-			TSMS_LIST_add(element->renderOperations, TSMS_GUI_createChatRenderOperation(info->x, info->y, style.font.type, style.font.font, t->cStr[i], style.font.size));
+			TSMS_LIST_add(element->renderOperations,
+                          TSMS_GUI_createCharRenderOperation(info->x, info->y, style.font.type, style.font.font,
+                                                             t->cStr[i], style.font.size));
 		}
 	}
 
