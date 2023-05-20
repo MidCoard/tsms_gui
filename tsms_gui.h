@@ -120,7 +120,11 @@ TSMS_GRID_INFO TSMS_GUI_calcGrid(pGuiElement element, TSMS_STYLE style, uint16_t
 
 pGui TSMS_GUI_create(TSMS_DPHP display);
 
+TSMS_RESULT TSMS_GUI_release(pGui gui);
+
 TSMS_RESULT TSMS_GUI_add(pGuiElement parent, pGuiElement element);
+
+TSMS_RESULT TSMS_GUI_remove(pGuiElement parent, pGuiElement element);
 
 TSMS_RESULT TSMS_GUI_draw(pGui gui);
 

@@ -63,3 +63,10 @@ TSMS_RESULT TSMS_MUTABLE_STYLE_setDisplayType(pMutableStyle mutableStyle, TSMS_S
 	}
 	return TSMS_SUCCESS;
 }
+
+TSMS_RESULT TSMS_MUTABLE_STYLE_release(pMutableStyle mutableStyle) {
+	if (mutableStyle == TSMS_NULL)
+		return TSMS_ERROR;
+	free(mutableStyle);
+	return TSMS_SUCCESS;
+}

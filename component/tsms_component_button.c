@@ -3,6 +3,8 @@
 #include "tsms_printer.h"
 #include "tsms_component_container.h"
 
+// todo fix invalid grid button can be triggered
+
 TSMS_INLINE void __tsms_internal_button_press(pGuiTouchableElement element, void* handler) {
 	pButton button = (pButton) element;
 	TSMS_STYLE style = TSMS_MUTABLE_STYLE_get(button->style);

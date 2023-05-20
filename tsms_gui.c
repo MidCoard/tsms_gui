@@ -39,16 +39,11 @@ TSMS_INLINE void __tsms_internal_check_render(pGuiElement element) {
 		element->requestRender = true;
 		return;
 	}
-	bool childGridChanged = false;
 	if (element->children != TSMS_NULL)
 		for (TSMS_POS i = 0; i < element->children->length; i++) {
 			pGuiElement child = element->children->list[i];
-			if (!TSMS_GUI_equalsGrid(child->lastGrid, child->grid))
-				childGridChanged = true;
 			__tsms_internal_check_render(child);
 		}
-	if (childGridChanged)
-		element->requestRender = true;
 }
 
 TSMS_INLINE void __tsms_internal_add_render_entity(pGui gui, pGuiElement element) {
@@ -62,7 +57,6 @@ TSMS_INLINE void __tsms_internal_add_render_entity(pGui gui, pGuiElement element
 
 TSMS_INLINE void __tsms_internal_touch_callback(TSMS_THP touch, uint8_t id, uint16_t x, uint16_t y, uint16_t size, TSMS_TOUCH_STATE state, void * handler) {
 	pGui gui = handler;
-	print("touch callback: %d, %d, %d, %d, %d, %d\n", touch, id, x, y, size, state);
 	y = gui->display->screen->height - y;
 	for (TSMS_POS i = 0; i < gui->touchableList->length; i++) {
 		pGuiTouchableElement element = gui->touchableList->list[i];
@@ -104,15 +98,7 @@ TSMS_INLINE void __tsms_internal_touch_callback(TSMS_THP touch, uint8_t id, uint
 }
 
 TSMS_INLINE void __tsms_internal_cancel_previous_render(pGuiElement element, bool parentFlag, pLock lock) {
-	if (TSMS_GUI_isInvalidGrid(element->grid)) {
-		volatile uint16_t a = 1;
-		a;
-	}
 	if (element->requestRender || parentFlag) {
-		if (TSMS_GUI_isInvalidGrid(element->grid)) {
-			volatile uint16_t a = 1;
-			a;
-		}
 		TSMS_STYLE style = element->computedStyle;
 		for (TSMS_POS i = 0; i < element->renderOperations->length; i++) {
 			pRenderOperation operation = element->renderOperations->list[i];
@@ -211,10 +197,13 @@ pGui TSMS_GUI_create(TSMS_DPHP display) {
 	gui->render = TSMS_CONTAINER_render;
 	gui->parent = TSMS_NULL;
 	gui->children = TSMS_LIST_create(10);
-	gui->style = TSMS_MUTABLE_STYLE_create(TSMS_STYLE_DEFAULT);
+	TSMS_STYLE style = TSMS_STYLE_DEFAULT;
+	style.width = display->screen->width;
+	style.height = display->screen->height;
+	gui->style = TSMS_MUTABLE_STYLE_create(style);
 	TSMS_MUTABLE_STYLE_setCallback(gui->style, TSMS_GUI_defaultStyleCallback, gui);
-	gui->lastStyle = TSMS_STYLE_DEFAULT;
-	gui->computedStyle = TSMS_STYLE_DEFAULT;
+	gui->lastStyle = style;
+	gui->computedStyle = style;
 	gui->requestRender = true;
 	gui->grid = TSMS_GUI_INVALID_GRID;
 	gui->lastGrid = TSMS_GUI_INVALID_GRID;
@@ -231,6 +220,20 @@ pGui TSMS_GUI_create(TSMS_DPHP display) {
 	return gui;
 }
 
+TSMS_RESULT TSMS_GUI_release(pGui gui) {
+	if (gui == TSMS_NULL)
+		return TSMS_ERROR;
+	TSMS_TOUCH_setCallback(gui->display->touch, TSMS_NULL, TSMS_NULL);
+	TSMS_LIST_release(gui->children);
+	TSMS_LIST_release(gui->renderOperations);
+	TSMS_LIST_release(gui->list);
+	TSMS_LIST_release(gui->touchableList);
+	TSMS_LOCK_release(gui->lock);
+	TSMS_MUTABLE_STYLE_release(gui->style);
+	free(gui);
+	return TSMS_SUCCESS;
+}
+
 TSMS_RESULT TSMS_GUI_add(pGuiElement parent, pGuiElement element) {
 	if (parent == TSMS_NULL)
 		return TSMS_ERROR;
@@ -240,11 +243,30 @@ TSMS_RESULT TSMS_GUI_add(pGuiElement parent, pGuiElement element) {
 		return TSMS_ERROR;
 	pGui gui = TSMS_GUI_getGUI(parent);
 	if (gui != TSMS_NULL)
-		TSMS_LIST_clear(gui->list);
+		if (TSMS_LOCK_lock(gui->lock)) {
+			TSMS_LIST_clear(gui->list);
+			TSMS_LOCK_unlock(gui->lock);
+		}
 	element->parent = parent;
 	element->gui = gui;
 	element->level = parent->level + 1;
 	return TSMS_LIST_add(parent->children, element);
+}
+
+TSMS_RESULT TSMS_GUI_remove(pGuiElement parent, pGuiElement element) {
+	if (parent == TSMS_NULL)
+		return TSMS_ERROR;
+	if (element == TSMS_NULL)
+		return TSMS_ERROR;
+	if (parent->children == TSMS_NULL)
+		return TSMS_ERROR;
+	pGui gui = TSMS_GUI_getGUI(parent);
+	if (gui != TSMS_NULL)
+		if (TSMS_LOCK_lock(gui->lock)) {
+			TSMS_LIST_clear(gui->list);
+			TSMS_LOCK_unlock(gui->lock);
+		}
+	return TSMS_LIST_removeElement(parent->children, element) == -1 ? TSMS_FAIL : TSMS_SUCCESS;
 }
 
 TSMS_RESULT TSMS_GUI_draw(pGui gui) {
@@ -253,9 +275,9 @@ TSMS_RESULT TSMS_GUI_draw(pGui gui) {
 	if (gui->list->length == 0)
 		__tsms_internal_add_render_entity(gui, gui);
 	TSMS_LOCK_lock(gui->lock);
-	__tsms_internal_request_render(gui, false);
 	gui->preRender(gui, 0, gui->display->screen->height, gui->display->screen->width, gui->display->screen->height);
 	__tsms_internal_check_render(gui);
+	__tsms_internal_request_render(gui, false);
 	pLock lock = TSMS_SEQUENCE_PRIORITY_LOCK_lock(gui->display->screen->lock, TSMS_NULL, 0);
 	__tsms_internal_cancel_previous_render(gui, false, lock);
 	TSMS_ALGORITHM_sort(gui->list, __tsms_internal_compare_grid_render_info);
@@ -265,14 +287,15 @@ TSMS_RESULT TSMS_GUI_draw(pGui gui) {
 		if (!element->requestRender)
 			break;
 	}
+	double start = TSMS_TIMER_now(timer);
 	if (lock != TSMS_NULL) {
 		for (TSMS_POS i = 0; i < renderRange; i++) {
 			pGuiElement element = gui->list->list[i];
-			print("RENDER: %d\n" , element->type);
 			element->render(element, lock);
 		}
 		TSMS_SEQUENCE_PRIORITY_LOCK_unlock(gui->display->screen->lock, lock);
 	}
+	print("%lf\n", TSMS_TIMER_now(timer) - start);
 	TSMS_RESULT result = TSMS_DISPLAY_request(gui->display);
 	TSMS_LOCK_unlock(gui->lock);
 	return result;

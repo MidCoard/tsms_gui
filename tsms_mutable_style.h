@@ -26,5 +26,7 @@ TSMS_RESULT TSMS_MUTABLE_STYLE_setFont(pMutableStyle mutableStyle, TSMS_STYLE_FO
 
 TSMS_RESULT TSMS_MUTABLE_STYLE_setDisplayType(pMutableStyle mutableStyle, TSMS_STYLE_DISPLAY displayType);
 
+TSMS_RESULT TSMS_MUTABLE_STYLE_release(pMutableStyle mutableStyle);
+
 
 #endif //TSMS_MUTABLE_STYLE_H
