@@ -1,15 +1,17 @@
 #ifndef TSMS_COMPONENT_CONTAINER_H
 #define TSMS_COMPONENT_CONTAINER_H
 
+#define TSMS_EXTEND_GUI_CONTAINER_ELEMENT \
+	TSMS_EXTEND_GUI_ELEMENT \
+	bool ignoreInvalidGrid;
+
 typedef struct TSMS_CONTAINER tContainer;
 typedef tContainer * pContainer;
 
 #include "tsms_gui.h"
 
 struct TSMS_CONTAINER {
-	TSMS_EXTEND_GUI_ELEMENT
-
-	bool ignoreInvalidGrid;
+	TSMS_EXTEND_GUI_CONTAINER_ELEMENT
 };
 
 TSMS_GRID_INFO TSMS_CONTAINER_preRender(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight);

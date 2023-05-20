@@ -1,5 +1,4 @@
 #include "tsms_component_column.h"
-#include "tsms_component_container.h"
 
 TSMS_INLINE TSMS_GRID_INFO __tsms_internal_column_pre_render(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight) {
 	pColumn column = element;
@@ -52,12 +51,12 @@ pColumn TSMS_COLUMN_createWithStyle(TSMS_STYLE style) {
 	column->lastStyle = style;
 	column->computedStyle = style;
 	column->requestRender = true;
-	column->forceRender = true;
 	column->grid = TSMS_GUI_INVALID_GRID;
 	column->lastGrid = TSMS_GUI_INVALID_GRID;
 	column->gui = TSMS_NULL;
 	column->level = 0;
 	column->renderOperations = TSMS_LIST_create(10);
+	column->ignoreInvalidGrid = true;
 
 	column->list = TSMS_INT_LIST_create(10);
 	return column;

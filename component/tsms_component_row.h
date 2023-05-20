@@ -6,9 +6,10 @@ typedef tRow * pRow;
 
 #include "tsms_gui.h"
 #include "tsms_int_list.h"
+#include "tsms_component_container.h"
 
 struct TSMS_ROW {
-	TSMS_EXTEND_GUI_ELEMENT
+	TSMS_EXTEND_GUI_CONTAINER_ELEMENT
 
 	TSMS_ILP list;
 };

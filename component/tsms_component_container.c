@@ -1,7 +1,7 @@
 #include "tsms_component_container.h"
 
 TSMS_INLINE bool __tsms_internal_isIgnoreInvalidGrid(pGuiElement element) {
-	if (element->type == TSMS_GUI_TYPE_CONTAINER)
+	if (element->type == TSMS_GUI_TYPE_CONTAINER || element->type == TSMS_GUI_TYPE_GUI || element->type == TSMS_GUI_TYPE_COLUMN || element->type == TSMS_GUI_TYPE_ROW)
 		return ((pContainer)element)->ignoreInvalidGrid;
 	return false;
 }
@@ -55,7 +55,6 @@ TSMS_RESULT TSMS_CONTAINER_render(pGuiElement element, pLock lock) {
 		}
 	}
 	element->requestRender = false;
-	element->forceRender = false;
 	element->lastGrid = element->grid;
 	element->lastStyle = style;
 	return TSMS_SUCCESS;
@@ -82,7 +81,6 @@ pContainer TSMS_CONTAINER_createWithStyle(TSMS_STYLE style, bool ignoreInvalidGr
 	container->lastStyle = style;
 	container->computedStyle = style;
 	container->requestRender = true;
-	container->forceRender = true;
 	container->grid = TSMS_GUI_INVALID_GRID;
 	container->lastGrid = TSMS_GUI_INVALID_GRID;
 	container->gui = TSMS_NULL;

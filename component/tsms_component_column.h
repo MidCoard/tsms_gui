@@ -5,9 +5,10 @@ typedef struct TSMS_COLUMN tColumn;
 typedef tColumn * pColumn;
 
 #include "tsms_gui.h"
+#include "tsms_component_container.h"
 
 struct TSMS_COLUMN {
-	TSMS_EXTEND_GUI_ELEMENT
+	TSMS_EXTEND_GUI_CONTAINER_ELEMENT
 
 	TSMS_ILP list;
 };

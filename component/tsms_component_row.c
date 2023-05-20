@@ -53,12 +53,12 @@ pRow TSMS_ROW_createWithStyle(TSMS_STYLE style) {
 	row->lastStyle = style;
 	row->computedStyle = style;
 	row->requestRender = true;
-	row->forceRender = true;
 	row->grid = TSMS_GUI_INVALID_GRID;
 	row->lastGrid = TSMS_GUI_INVALID_GRID;
 	row->gui = TSMS_NULL;
 	row->level = 0;
 	row->renderOperations = TSMS_LIST_create(10);
+	row->ignoreInvalidGrid = true;
 
 	row->list = TSMS_INT_LIST_create(10);
 	return row;

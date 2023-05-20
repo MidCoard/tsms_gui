@@ -11,7 +11,6 @@
 	TSMS_STYLE lastStyle; \
 	TSMS_STYLE computedStyle; \
 	bool requestRender; \
-	bool forceRender; \
 	TSMS_GRID_INFO grid; \
 	TSMS_GRID_INFO lastGrid; \
 	pGui gui; \
@@ -82,6 +81,8 @@ struct TSMS_GRID_INFO {
 	// x y should be top left
 };
 
+#include "tsms_component_container.h"
+
 struct TSMS_RENDER_OPERATION {
 	TSMS_RENDER_OPERATION_TYPE type;
 	uint8_t size;
@@ -90,7 +91,7 @@ struct TSMS_RENDER_OPERATION {
 
 
 struct TSMS_GUI {
-	TSMS_EXTEND_GUI_ELEMENT
+	TSMS_EXTEND_GUI_CONTAINER_ELEMENT
 	TSMS_DPHP display;
 	TSMS_LP list;
 	TSMS_LP touchableList;

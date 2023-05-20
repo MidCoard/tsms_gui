@@ -5,7 +5,6 @@
 #include "tsms_math.h"
 #include "tsms_algorithm.h"
 #include "tsms_printer.h"
-#include "tsms_component_container.h"
 
 TSMS_GRID_INFO TSMS_GUI_INVALID_GRID = {0, 0, 0, 0, 0, TSMS_STYLE_DISPLAY_BLOCK};
 
@@ -23,21 +22,14 @@ TSMS_INLINE long __tsms_internal_compare_grid_render_info(void * a, void * b) {
 	return element1->grid.x - element2->grid.x;
 }
 
-TSMS_INLINE void __tsms_internal_request_render(pGuiElement element, bool parentFlag, uint8_t zIndex) {
+// compute style and merge all
+TSMS_INLINE void __tsms_internal_request_render(pGuiElement element, bool parentFlag) {
 	TSMS_STYLE style = TSMS_STYLE_getStyle(element);
 	if (element->children != TSMS_NULL)
 		for (TSMS_POS i = 0; i < element->children->length; i++)
-			__tsms_internal_request_render(element->children->list[i], element->requestRender || parentFlag, max(zIndex, style.zIndex));
-	if (parentFlag && style.zIndex <= zIndex)
+			__tsms_internal_request_render(element->children->list[i], element->requestRender || parentFlag);
+	if (parentFlag && style.position != TSMS_STYLE_POSITION_ABSOLUTE)
 		element->requestRender = false;
-}
-
-TSMS_INLINE void __tsms_internal_force_render(pGuiElement element) {
-    return;
-	element->forceRender = true;
-	if (element->children != TSMS_NULL)
-		for (TSMS_POS i = 0; i < element->children->length; i++)
-			__tsms_internal_force_render(element->children->list[i]);
 }
 
 TSMS_INLINE void __tsms_internal_check_render(pGuiElement element) {
@@ -55,7 +47,6 @@ TSMS_INLINE void __tsms_internal_check_render(pGuiElement element) {
 				childGridChanged = true;
 			__tsms_internal_check_render(child);
 		}
-	__tsms_internal_force_render(element);
 	if (childGridChanged)
 		element->requestRender = true;
 }
@@ -112,8 +103,12 @@ TSMS_INLINE void __tsms_internal_touch_callback(TSMS_THP touch, uint8_t id, uint
 	}
 }
 
-TSMS_INLINE void __tsms_internal_cancel_previous_render(pGuiElement element, pLock lock) {
-	if (element->requestRender) {
+TSMS_INLINE void __tsms_internal_cancel_previous_render(pGuiElement element, bool parentFlag, pLock lock) {
+	if (element->requestRender || parentFlag) {
+		if (TSMS_GUI_isInvalidGrid(element->grid)) {
+			volatile uint16_t a = 1;
+			a;
+		}
 		TSMS_STYLE style = element->computedStyle;
 		for (TSMS_POS i = 0; i < element->renderOperations->length; i++) {
 			pRenderOperation operation = element->renderOperations->list[i];
@@ -121,11 +116,10 @@ TSMS_INLINE void __tsms_internal_cancel_previous_render(pGuiElement element, pLo
 			TSMS_GUI_releaseRenderOperation(operation);
 		}
 		TSMS_LIST_clear(element->renderOperations);
-		return;
 	}
 	if (element->children != TSMS_NULL)
 		for (TSMS_POS i = 0; i < element->children->length; i++)
-			__tsms_internal_cancel_previous_render(element->children->list[i], lock);
+			__tsms_internal_cancel_previous_render(element->children->list[i], element->requestRender || parentFlag, lock);
 }
 
 bool TSMS_GUI_inGrid(TSMS_GRID_INFO grid, uint16_t x, uint16_t y) {
@@ -218,12 +212,12 @@ pGui TSMS_GUI_create(TSMS_DPHP display) {
 	gui->lastStyle = TSMS_STYLE_DEFAULT;
 	gui->computedStyle = TSMS_STYLE_DEFAULT;
 	gui->requestRender = true;
-	gui->forceRender = true;
 	gui->grid = TSMS_GUI_INVALID_GRID;
 	gui->lastGrid = TSMS_GUI_INVALID_GRID;
 	gui->gui = gui;
 	gui->level = 0;
 	gui->renderOperations = TSMS_LIST_create(10);
+	gui->ignoreInvalidGrid = true;
 
 	gui->display = display;
 	gui->list = TSMS_LIST_create(10);
@@ -241,6 +235,8 @@ TSMS_RESULT TSMS_GUI_add(pGuiElement parent, pGuiElement element) {
 	if (parent->children == TSMS_NULL)
 		return TSMS_ERROR;
 	pGui gui = TSMS_GUI_getGUI(parent);
+	if (gui != TSMS_NULL)
+		TSMS_LIST_clear(gui->list);
 	element->parent = parent;
 	element->gui = gui;
 	element->level = parent->level + 1;
@@ -253,11 +249,11 @@ TSMS_RESULT TSMS_GUI_draw(pGui gui) {
 	if (gui->list->length == 0)
 		__tsms_internal_add_render_entity(gui, gui);
 	TSMS_LOCK_lock(gui->lock);
-	__tsms_internal_request_render(gui, false, 0);
+	__tsms_internal_request_render(gui, false);
 	gui->preRender(gui, 0, gui->display->screen->height, gui->display->screen->width, gui->display->screen->height);
 	__tsms_internal_check_render(gui);
 	pLock lock = TSMS_SEQUENCE_PRIORITY_LOCK_lock(gui->display->screen->lock, TSMS_NULL, 0);
-	__tsms_internal_cancel_previous_render(gui, lock);
+	__tsms_internal_cancel_previous_render(gui, false, lock);
 	TSMS_ALGORITHM_sort(gui->list, __tsms_internal_compare_grid_render_info);
 	TSMS_SIZE renderRange;
 	for (renderRange = 0; renderRange < gui->list->length; renderRange++) {
@@ -284,112 +280,135 @@ TSMS_RESULT TSMS_GUI_draw(pGui gui) {
 // do not check grid is valid, because it must be valid to call this function
 TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element, TSMS_STYLE style, pLock lock) {
 	TSMS_GRID_INFO grid = element->grid;
-	bool ignoreMargin = false;
-	bool ignoreBorder = false;
-	bool ignorePadding = false;
-	bool ignoreBackground = false;
-
-
-	if (TSMS_GUI_equalsGrid(grid, element->lastGrid)) {
-		if (TSMS_STYLE_equals(style, element->lastStyle)) {
-			ignoreMargin = true;
-			ignoreBorder = true;
-			ignorePadding = true;
-			ignoreBackground = true;
-		}
-	}
-
-	if (element->forceRender) {
-		ignoreMargin = false;
-		ignoreBorder = false;
-		ignorePadding = false;
-		ignoreBackground = false;
-	}
 
 	// render margin
-	if (!ignoreMargin) {
-		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x, grid.y, grid.width, style.margin.top,
-		                     *style.margin.color, lock);
-        TSMS_LIST_add(element->gui->renderOperations, TSMS_GUI_createFillRectRenderOperation(grid.x, grid.y, grid.width, style.margin.top));
-		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x, grid.y - grid.height + style.margin.bottom,
-		                     grid.width, style.margin.bottom, *style.margin.color, lock);
-        TSMS_LIST_add(element->gui->renderOperations, TSMS_GUI_createFillRectRenderOperation(grid.x, grid.y - grid.height + style.margin.bottom, grid.width, style.margin.bottom));
-		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x, grid.y - style.margin.top, style.margin.left,
-		                     grid.height - style.margin.top - style.margin.bottom, *style.margin.color, lock);
-        TSMS_LIST_add(element->gui->renderOperations, TSMS_GUI_createFillRectRenderOperation(grid.x, grid.y - style.margin.top, style.margin.left, grid.height - style.margin.top - style.margin.bottom));
-		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x + grid.width - style.margin.right,
-		                     grid.y - style.margin.top, style.margin.right,
-		                     grid.height - style.margin.top - style.margin.bottom, *style.margin.color, lock);
-        TSMS_LIST_add(element->gui->renderOperations, TSMS_GUI_createFillRectRenderOperation(grid.x + grid.width - style.margin.right, grid.y - style.margin.top, style.margin.right, grid.height - style.margin.top - style.margin.bottom));
-	}
+	TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x, grid.y, grid.width, style.margin.top,
+	                            *style.margin.color, lock);
+	TSMS_LIST_add(element->renderOperations,
+	              TSMS_GUI_createFillRectRenderOperation(grid.x, grid.y, grid.width, style.margin.top));
+	TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x,
+	                            grid.y - grid.height + style.margin.bottom,
+	                            grid.width, style.margin.bottom, *style.margin.color, lock);
+	TSMS_LIST_add(element->renderOperations,
+	              TSMS_GUI_createFillRectRenderOperation(grid.x, grid.y - grid.height + style.margin.bottom, grid.width,
+	                                                     style.margin.bottom));
+	TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x, grid.y - style.margin.top,
+	                            style.margin.left,
+	                            grid.height - style.margin.top - style.margin.bottom, *style.margin.color, lock);
+	TSMS_LIST_add(element->renderOperations,
+	              TSMS_GUI_createFillRectRenderOperation(grid.x, grid.y - style.margin.top, style.margin.left,
+	                                                     grid.height - style.margin.top - style.margin.bottom));
+	TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x + grid.width - style.margin.right,
+	                            grid.y - style.margin.top, style.margin.right,
+	                            grid.height - style.margin.top - style.margin.bottom, *style.margin.color, lock);
+	TSMS_LIST_add(element->renderOperations,
+	              TSMS_GUI_createFillRectRenderOperation(grid.x + grid.width - style.margin.right,
+	                                                     grid.y - style.margin.top, style.margin.right,
+	                                                     grid.height - style.margin.top - style.margin.bottom));
 
 	// render border
-	if (!ignoreBorder) {
-		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x + style.margin.left,
-		                     grid.y - style.margin.top, grid.width - style.margin.left - style.margin.right,
-		                     style.border.top, *style.border.color, lock);
-        TSMS_LIST_add(element->gui->renderOperations, TSMS_GUI_createFillRectRenderOperation(grid.x + style.margin.left, grid.y - style.margin.top, grid.width - style.margin.left - style.margin.right, style.border.top));
-		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
-		                     grid.x + style.margin.left,
-		                     grid.y - grid.height + style.margin.bottom + style.border.bottom,
-		                     grid.width - style.margin.left - style.margin.right,
-		                     style.border.bottom, *style.border.color, lock);
-        TSMS_LIST_add(element->gui->renderOperations, TSMS_GUI_createFillRectRenderOperation(grid.x + style.margin.left, grid.y - grid.height + style.margin.bottom + style.border.bottom, grid.width - style.margin.left - style.margin.right, style.border.bottom));
-		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
-		                     grid.x + style.margin.left,
-		                     grid.y - style.margin.top,
-		                     style.border.left,
-		                     grid.height - style.margin.top - style.margin.bottom, *style.border.color, lock);
-        TSMS_LIST_add(element->gui->renderOperations, TSMS_GUI_createFillRectRenderOperation(grid.x + style.margin.left, grid.y - style.margin.top, style.border.left, grid.height - style.margin.top - style.margin.bottom));
-		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
-		                     grid.x + grid.width - style.margin.right - style.border.right,
-		                     grid.y - style.margin.top,
-		                     style.border.right,
-		                     grid.height - style.margin.top - style.margin.bottom, *style.border.color, lock);
-        TSMS_LIST_add(element->gui->renderOperations, TSMS_GUI_createFillRectRenderOperation(grid.x + grid.width - style.margin.right - style.border.right, grid.y - style.margin.top, style.border.right, grid.height - style.margin.top - style.margin.bottom));
-	}
+	TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen, grid.x + style.margin.left,
+	                            grid.y - style.margin.top, grid.width - style.margin.left - style.margin.right,
+	                            style.border.top, *style.border.color, lock);
+	TSMS_LIST_add(element->renderOperations,
+	              TSMS_GUI_createFillRectRenderOperation(grid.x + style.margin.left, grid.y - style.margin.top,
+	                                                     grid.width - style.margin.left - style.margin.right,
+	                                                     style.border.top));
+	TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
+	                            grid.x + style.margin.left,
+	                            grid.y - grid.height + style.margin.bottom + style.border.bottom,
+	                            grid.width - style.margin.left - style.margin.right,
+	                            style.border.bottom, *style.border.color, lock);
+	TSMS_LIST_add(element->renderOperations, TSMS_GUI_createFillRectRenderOperation(grid.x + style.margin.left,
+	                                                                                grid.y - grid.height +
+	                                                                                style.margin.bottom +
+	                                                                                style.border.bottom,
+	                                                                                grid.width - style.margin.left -
+	                                                                                style.margin.right,
+	                                                                                style.border.bottom));
+	TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
+	                            grid.x + style.margin.left,
+	                            grid.y - style.margin.top,
+	                            style.border.left,
+	                            grid.height - style.margin.top - style.margin.bottom, *style.border.color, lock);
+	TSMS_LIST_add(element->renderOperations,
+	              TSMS_GUI_createFillRectRenderOperation(grid.x + style.margin.left, grid.y - style.margin.top,
+	                                                     style.border.left,
+	                                                     grid.height - style.margin.top - style.margin.bottom));
+	TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
+	                            grid.x + grid.width - style.margin.right - style.border.right,
+	                            grid.y - style.margin.top,
+	                            style.border.right,
+	                            grid.height - style.margin.top - style.margin.bottom, *style.border.color, lock);
+	TSMS_LIST_add(element->renderOperations,
+	              TSMS_GUI_createFillRectRenderOperation(grid.x + grid.width - style.margin.right - style.border.right,
+	                                                     grid.y - style.margin.top, style.border.right,
+	                                                     grid.height - style.margin.top - style.margin.bottom));
 
-	if (!ignorePadding) {
-		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
-		                     grid.x + style.margin.left + style.border.left,
-		                     grid.y - style.margin.top - style.border.top,
-		                     grid.width - style.margin.left - style.margin.right - style.border.left - style.border.right,
-		                     style.padding.top, *style.padding.color, lock);
-        TSMS_LIST_add(element->gui->renderOperations, TSMS_GUI_createFillRectRenderOperation(grid.x + style.margin.left + style.border.left, grid.y - style.margin.top - style.border.top, grid.width - style.margin.left - style.margin.right - style.border.left - style.border.right, style.padding.top));
-		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
-		                     grid.x + style.margin.left + style.border.left,
-		                     grid.y - grid.height + style.margin.bottom + style.border.bottom + style.padding.bottom,
-		                     grid.width - style.margin.left - style.margin.right - style.border.left - style.border.right,
-		                     style.padding.bottom, *style.padding.color, lock);
-        TSMS_LIST_add(element->gui->renderOperations, TSMS_GUI_createFillRectRenderOperation(grid.x + style.margin.left + style.border.left, grid.y - grid.height + style.margin.bottom + style.border.bottom + style.padding.bottom, grid.width - style.margin.left - style.margin.right - style.border.left - style.border.right, style.padding.bottom));
-		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
-		                     grid.x + style.margin.left + style.border.left,
-		                     grid.y - style.margin.top - style.border.top,
-		                     style.padding.left,
-		                     grid.height - style.margin.top - style.margin.bottom - style.border.top - style.border.bottom,
-		                     *style.padding.color, lock);
-        TSMS_LIST_add(element->gui->renderOperations, TSMS_GUI_createFillRectRenderOperation(grid.x + style.margin.left + style.border.left, grid.y - style.margin.top - style.border.top, style.padding.left, grid.height - style.margin.top - style.margin.bottom - style.border.top - style.border.bottom));
-		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
-		                     grid.x + grid.width - style.margin.right - style.border.right - style.padding.right,
-		                     grid.y - style.margin.top - style.border.top,
-		                     style.padding.right,
-		                     grid.height - style.margin.top - style.margin.bottom - style.border.top - style.border.bottom,
-		                     *style.padding.color, lock);
-        TSMS_LIST_add(element->gui->renderOperations, TSMS_GUI_createFillRectRenderOperation(grid.x + grid.width - style.margin.right - style.border.right - style.padding.right, grid.y - style.margin.top - style.border.top, style.padding.right, grid.height - style.margin.top - style.margin.bottom - style.border.top - style.border.bottom));
-	}
+	TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
+	                            grid.x + style.margin.left + style.border.left,
+	                            grid.y - style.margin.top - style.border.top,
+	                            grid.width - style.margin.left - style.margin.right - style.border.left -
+	                            style.border.right,
+	                            style.padding.top, *style.padding.color, lock);
+	TSMS_LIST_add(element->renderOperations,
+	              TSMS_GUI_createFillRectRenderOperation(grid.x + style.margin.left + style.border.left,
+	                                                     grid.y - style.margin.top - style.border.top,
+	                                                     grid.width - style.margin.left - style.margin.right -
+	                                                     style.border.left - style.border.right, style.padding.top));
+	TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
+	                            grid.x + style.margin.left + style.border.left,
+	                            grid.y - grid.height + style.margin.bottom + style.border.bottom + style.padding.bottom,
+	                            grid.width - style.margin.left - style.margin.right - style.border.left -
+	                            style.border.right,
+	                            style.padding.bottom, *style.padding.color, lock);
+	TSMS_LIST_add(element->renderOperations,
+	              TSMS_GUI_createFillRectRenderOperation(grid.x + style.margin.left + style.border.left,
+	                                                     grid.y - grid.height + style.margin.bottom +
+	                                                     style.border.bottom + style.padding.bottom,
+	                                                     grid.width - style.margin.left - style.margin.right -
+	                                                     style.border.left - style.border.right, style.padding.bottom));
+	TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
+	                            grid.x + style.margin.left + style.border.left,
+	                            grid.y - style.margin.top - style.border.top,
+	                            style.padding.left,
+	                            grid.height - style.margin.top - style.margin.bottom - style.border.top -
+	                            style.border.bottom,
+	                            *style.padding.color, lock);
+	TSMS_LIST_add(element->renderOperations,
+	              TSMS_GUI_createFillRectRenderOperation(grid.x + style.margin.left + style.border.left,
+	                                                     grid.y - style.margin.top - style.border.top,
+	                                                     style.padding.left,
+	                                                     grid.height - style.margin.top - style.margin.bottom -
+	                                                     style.border.top - style.border.bottom));
+	TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
+	                            grid.x + grid.width - style.margin.right - style.border.right - style.padding.right,
+	                            grid.y - style.margin.top - style.border.top,
+	                            style.padding.right,
+	                            grid.height - style.margin.top - style.margin.bottom - style.border.top -
+	                            style.border.bottom,
+	                            *style.padding.color, lock);
+	TSMS_LIST_add(element->renderOperations, TSMS_GUI_createFillRectRenderOperation(
+			grid.x + grid.width - style.margin.right - style.border.right - style.padding.right,
+			grid.y - style.margin.top - style.border.top, style.padding.right,
+			grid.height - style.margin.top - style.margin.bottom - style.border.top - style.border.bottom));
 
 	// render background color
-	if (!ignoreBackground) {
-        TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
-                                    grid.x + style.margin.left + style.border.left + style.padding.left,
-                                    grid.y - style.margin.top - style.border.top - style.padding.top,
-                                    grid.width - style.margin.left - style.margin.right - style.border.left -
-                                    style.border.right - style.padding.left - style.padding.right,
-                                    grid.height - style.margin.top - style.margin.bottom - style.border.top -
-                                    style.border.bottom - style.padding.top - style.padding.bottom,
-                                    *style.backgroundColor, lock);
-        TSMS_LIST_add(element->gui->renderOperations, TSMS_GUI_createFillRectRenderOperation(grid.x + style.margin.left + style.border.left + style.padding.left, grid.y - style.margin.top - style.border.top - style.padding.top, grid.width - style.margin.left - style.margin.right - style.border.left - style.border.right - style.padding.left - style.padding.right, grid.height - style.margin.top - style.margin.bottom - style.border.top - style.border.bottom - style.padding.top - style.padding.bottom));
-    }
+	TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
+	                            grid.x + style.margin.left + style.border.left + style.padding.left,
+	                            grid.y - style.margin.top - style.border.top - style.padding.top,
+	                            grid.width - style.margin.left - style.margin.right - style.border.left -
+	                            style.border.right - style.padding.left - style.padding.right,
+	                            grid.height - style.margin.top - style.margin.bottom - style.border.top -
+	                            style.border.bottom - style.padding.top - style.padding.bottom,
+	                            *style.backgroundColor, lock);
+	TSMS_LIST_add(element->renderOperations, TSMS_GUI_createFillRectRenderOperation(
+			grid.x + style.margin.left + style.border.left + style.padding.left,
+			grid.y - style.margin.top - style.border.top - style.padding.top,
+			grid.width - style.margin.left - style.margin.right - style.border.left - style.border.right -
+			style.padding.left - style.padding.right,
+			grid.height - style.margin.top - style.margin.bottom - style.border.top - style.border.bottom -
+			style.padding.top - style.padding.bottom));
 	return TSMS_SUCCESS;
 }
 
@@ -437,6 +456,7 @@ TSMS_RESULT TSMS_GUI_cancelRenderOperation(pGuiElement element, pRenderOperation
 	if (operation == TSMS_NULL)
 		return TSMS_ERROR;
 	uint16_t offset = 0;
+	TSMS_COLOR parentColor = element->parent == TSMS_NULL ? *style.backgroundColor : *element->parent->computedStyle.backgroundColor;
 	if (operation->type == TSMS_RENDER_OPERATION_TYPE_CHAR) {
 		uint16_t x = *((uint16_t *) (operation->data + offset));
 		offset += sizeof(uint16_t);
@@ -458,7 +478,7 @@ TSMS_RESULT TSMS_GUI_cancelRenderOperation(pGuiElement element, pRenderOperation
         uint16_t width = *((uint16_t *) (operation->data + offset));
         offset += sizeof(uint16_t);
         uint16_t height = *((uint16_t *) (operation->data + offset));
-        TSMS_SCREEN_fillRect(TSMS_GUI_getGUI(element)->display->screen, x, y, width, height, *style.backgroundColor, lock);
+        TSMS_SCREEN_fillRect(TSMS_GUI_getGUI(element)->display->screen, x, y, width, height, TSMS_COLOR_RED, lock);
     }
 	return TSMS_SUCCESS;
 }

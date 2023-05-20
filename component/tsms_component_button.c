@@ -40,7 +40,6 @@ pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text) {
 	button->lastStyle = style;
 	button->computedStyle = style;
 	button->requestRender = true;
-	button->forceRender = true;
 	button->grid = TSMS_GUI_INVALID_GRID;
 	button->lastGrid = TSMS_GUI_INVALID_GRID;
 	button->gui = TSMS_NULL;

@@ -74,7 +74,6 @@ TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element, pLock l
 	}
 
 	element->requestRender = false;
-	element->forceRender = false;
 	element->lastStyle = style;
 	element->lastGrid = element->grid;
 	return TSMS_SUCCESS;
@@ -102,7 +101,6 @@ pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pString text) {
 	t->lastStyle = style;
 	t->computedStyle = style;
 	t->requestRender = true;
-	t->forceRender = true;
 	t->grid = TSMS_GUI_INVALID_GRID;
 	t->lastGrid = TSMS_GUI_INVALID_GRID;
 	t->gui = TSMS_NULL;
