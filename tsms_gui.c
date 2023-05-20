@@ -104,6 +104,10 @@ TSMS_INLINE void __tsms_internal_touch_callback(TSMS_THP touch, uint8_t id, uint
 }
 
 TSMS_INLINE void __tsms_internal_cancel_previous_render(pGuiElement element, bool parentFlag, pLock lock) {
+	if (TSMS_GUI_isInvalidGrid(element->grid)) {
+		volatile uint16_t a = 1;
+		a;
+	}
 	if (element->requestRender || parentFlag) {
 		if (TSMS_GUI_isInvalidGrid(element->grid)) {
 			volatile uint16_t a = 1;
@@ -264,10 +268,8 @@ TSMS_RESULT TSMS_GUI_draw(pGui gui) {
 	if (lock != TSMS_NULL) {
 		for (TSMS_POS i = 0; i < renderRange; i++) {
 			pGuiElement element = gui->list->list[i];
-			if (element->requestRender) {
-				print("RENDER: %d\n" , element->type);
-				element->render(element, lock);
-			}
+			print("RENDER: %d\n" , element->type);
+			element->render(element, lock);
 		}
 		TSMS_SEQUENCE_PRIORITY_LOCK_unlock(gui->display->screen->lock, lock);
 	}
@@ -478,7 +480,7 @@ TSMS_RESULT TSMS_GUI_cancelRenderOperation(pGuiElement element, pRenderOperation
         uint16_t width = *((uint16_t *) (operation->data + offset));
         offset += sizeof(uint16_t);
         uint16_t height = *((uint16_t *) (operation->data + offset));
-        TSMS_SCREEN_fillRect(TSMS_GUI_getGUI(element)->display->screen, x, y, width, height, TSMS_COLOR_RED, lock);
+        TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen, x, y, width, height, parentColor, lock);
     }
 	return TSMS_SUCCESS;
 }

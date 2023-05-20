@@ -10,7 +10,7 @@ struct TSMS_INPUT {
 	TSMS_EXTEND_GUI_ELEMENT
 
 	pText text;
-	pString string;
+	pString value;
 };
 
 

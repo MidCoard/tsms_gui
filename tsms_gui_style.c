@@ -110,7 +110,7 @@ bool TSMS_STYLE_equals(TSMS_STYLE style1, TSMS_STYLE style2) {
 	return memcmp(style1Pointer, style2Pointer, sizeof(TSMS_STYLE)) == 0;
 }
 
-TSMS_STYLE TSMS_STYLE_getStyle(pGuiElement element) {
+TSMS_STYLE  TSMS_STYLE_getStyle(pGuiElement element) {
 	if (element->parent == TSMS_NULL)
 		return element->computedStyle = TSMS_MUTABLE_STYLE_get(element->style);
 	TSMS_STYLE parentStyle = element->parent->computedStyle;

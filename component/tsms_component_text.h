@@ -11,6 +11,7 @@ struct TSMS_TEXT {
 	TSMS_EXTEND_GUI_ELEMENT
 
 	pString text;
+	pNativeMutableString _native;
 	TSMS_LP list;
 };
 

@@ -107,8 +107,8 @@ pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pString text) {
 	t->level = 0;
 	t->renderOperations = TSMS_LIST_create(10);
 
-	pNativeMutableString nativeText = TSMS_NATIVE_MUTABLE_STRING_create(text);
-	TSMS_NATIVE_MUTABLE_STRING_setCallback(nativeText, __tsms_internal_text_callback, t);
+	t->_native = TSMS_NATIVE_MUTABLE_STRING_create(text);
+	TSMS_NATIVE_MUTABLE_STRING_setCallback(t->_native, __tsms_internal_text_callback, t);
 	t->text = text;
 	t->list = TSMS_LIST_create(10);
 	return t;
