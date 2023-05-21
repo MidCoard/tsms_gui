@@ -8,7 +8,6 @@
 TSMS_INLINE void __tsms_internal_button_press(pGuiTouchableElement element, void* handler) {
 	pButton button = (pButton) element;
 	TSMS_STYLE style = TSMS_MUTABLE_STYLE_get(button->style);
-	print("press me\n");
 	style.backgroundColor = style.pressedColor;
 	style.padding.color = style.pressedColor;
 	TSMS_MUTABLE_STYLE_set(button->style, style);
@@ -17,7 +16,6 @@ TSMS_INLINE void __tsms_internal_button_press(pGuiTouchableElement element, void
 TSMS_INLINE void __tsms_internal_button_release(pGuiTouchableElement element, void* handler) {
 	pButton button = (pButton) element;
 	TSMS_STYLE style = TSMS_MUTABLE_STYLE_get(button->style);
-	print("release me\n");
 	style.backgroundColor = style.releasedColor;
 	style.padding.color = style.releasedColor;
 	TSMS_MUTABLE_STYLE_set(button->style, style);

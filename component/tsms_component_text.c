@@ -15,7 +15,7 @@ TSMS_INLINE struct _textGridInfo* __tsms_internal_create_text_grid_info(uint16_t
 }
 
 TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight) {
-	TSMS_STYLE style = element->computedStyle;
+	TSMS_STYLE style = TSMS_STYLE_getStyle(element);
 	pText text = (pText) element;
 	pString t = text->text;
 	if (t->length == 0)

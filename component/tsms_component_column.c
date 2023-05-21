@@ -2,7 +2,7 @@
 
 TSMS_INLINE TSMS_GRID_INFO __tsms_internal_column_pre_render(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight) {
 	pColumn column = element;
-	TSMS_STYLE style = element->computedStyle;
+	TSMS_STYLE style = TSMS_STYLE_getStyle(element);
 	if (style.display == TSMS_STYLE_DISPLAY_NONE)
 		return element->grid = TSMS_GUI_calcGrid(element, style, x, y, 0, 0, parentWidth, parentHeight);
 	uint16_t elementWidth = TSMS_STYLE_elementWidth(style, parentWidth);
@@ -10,7 +10,8 @@ TSMS_INLINE TSMS_GRID_INFO __tsms_internal_column_pre_render(pGuiElement element
 	int relativeCount = 0;
 	for (TSMS_POS i = 0; i < element->children->length; i++) {
 		pGuiElement child = element->children->list[i];
-		if (child->computedStyle.position == TSMS_STYLE_POSITION_RELATIVE)
+		TSMS_STYLE childStyle = TSMS_STYLE_getStyle(child);
+		if (childStyle.position == TSMS_STYLE_POSITION_RELATIVE)
 			relativeCount += column->list->list[i];
 	}
 	uint16_t childHeight = elementHeight / (float) relativeCount;

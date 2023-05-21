@@ -24,7 +24,7 @@ TSMS_INLINE long __tsms_internal_compare_grid_render_info(void * a, void * b) {
 
 // compute style and merge all
 TSMS_INLINE void __tsms_internal_request_render(pGuiElement element, bool parentFlag) {
-	TSMS_STYLE style = TSMS_STYLE_getStyle(element);
+	TSMS_STYLE style = element->computedStyle;
 	if (element->children != TSMS_NULL)
 		for (TSMS_POS i = 0; i < element->children->length; i++)
 			__tsms_internal_request_render(element->children->list[i], element->requestRender || parentFlag);
@@ -287,15 +287,16 @@ TSMS_RESULT TSMS_GUI_draw(pGui gui) {
 		if (!element->requestRender)
 			break;
 	}
-	double start = TSMS_TIMER_now(timer);
 	if (lock != TSMS_NULL) {
+		print("begin\n");
 		for (TSMS_POS i = 0; i < renderRange; i++) {
 			pGuiElement element = gui->list->list[i];
+			print("render: %d\n", element->type);
 			element->render(element, lock);
 		}
+		print("stop\n");
 		TSMS_SEQUENCE_PRIORITY_LOCK_unlock(gui->display->screen->lock, lock);
 	}
-	print("%lf\n", TSMS_TIMER_now(timer) - start);
 	TSMS_RESULT result = TSMS_DISPLAY_request(gui->display);
 	TSMS_LOCK_unlock(gui->lock);
 	return result;
@@ -366,9 +367,6 @@ TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element, TSMS_STYLE style, pLock lo
 		              TSMS_GUI_createFillRectRenderOperation(grid.x + style.margin.left, grid.y - style.margin.top,
 		                                                     style.border.left,
 		                                                     grid.height - style.margin.top - style.margin.bottom));
-		print("render %d, %d, %d, %d, %d \n", grid.x + grid.width - style.margin.right - style.border.right,
-		      grid.y - style.margin.top, style.border.right, grid.height - style.margin.top - style.margin.bottom,
-		      TSMS_UTIL_color565(*style.border.color));
 		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGUI(element)->display->screen,
 		                            grid.x + grid.width - style.margin.right - style.border.right,
 		                            grid.y - style.margin.top,
