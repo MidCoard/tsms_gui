@@ -1,6 +1,4 @@
 #include "tsms_component_button.h"
-#include "tsms_list.h"
-#include "tsms_component_container.h"
 
 TSMS_INLINE void __tsms_internal_button_press(pGuiTouchableElement element, void* handler) {
 	pButton button = (pButton) element;
@@ -70,7 +68,7 @@ pButton TSMS_BUTTON_create(pText text) {
 	return TSMS_BUTTON_createWithStyle(TSMS_STYLE_DEFAULT_BUTTON, text);
 }
 
-TSMS_RESULT TSMS_BUTTON_onClick(pButton button, TSMS_BUTTON_CALLBACK callback, void * handler) {
+TSMS_RESULT TSMS_BUTTON_onClick(pButton button, TSMS_TOUCHABLE_CALLBACK callback, void * handler) {
 	if (button == TSMS_NULL)
 		return TSMS_ERROR;
 	button->callback = callback;
@@ -81,6 +79,5 @@ TSMS_RESULT TSMS_BUTTON_onClick(pButton button, TSMS_BUTTON_CALLBACK callback, v
 TSMS_RESULT TSMS_BUTTON_release(pButton button) {
 	if (button == TSMS_NULL)
 		return TSMS_ERROR;
-	TSMS_INT_LIST_release(button->points);
-	return TSMS_GUI_releaseGuiElement(button);
+	return TSMS_LABEL_release(button);
 }

@@ -83,5 +83,5 @@ TSMS_RESULT TSMS_ROW_release(pRow row) {
 	if (row == TSMS_NULL)
 		return TSMS_ERROR;
 	TSMS_INT_LIST_release(row->list);
-	return TSMS_GUI_releaseGuiElement(row);
+	return TSMS_CONTAINER_release(row);
 }

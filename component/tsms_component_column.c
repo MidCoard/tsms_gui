@@ -81,5 +81,5 @@ TSMS_RESULT TSMS_COLUMN_release(pColumn column) {
 	if (column == TSMS_NULL)
 		return TSMS_ERROR;
 	TSMS_INT_LIST_release(column->list);
-	return TSMS_GUI_releaseGuiElement(column);
+	return TSMS_CONTAINER_release(column);
 }
