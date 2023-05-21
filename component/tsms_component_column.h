@@ -21,4 +21,6 @@ TSMS_RESULT TSMS_COLUMN_add(pColumn column, pGuiElement element);
 
 TSMS_RESULT TSMS_COLUMN_addWithWeight(pColumn column, pGuiElement element, int weight);
 
+TSMS_RESULT TSMS_COLUMN_release(pColumn column);
+
 #endif //TSMS_COMPONENT_COLUMN_H

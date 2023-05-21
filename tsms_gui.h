@@ -116,6 +116,8 @@ pGui TSMS_GUI_getGUI(pGuiElement element);
 
 bool TSMS_GUI_isInvalidGrid(TSMS_GRID_INFO grid);
 
+bool TSMS_GUI_isInValidGrid(pGuiElement element);
+
 TSMS_GRID_INFO TSMS_GUI_calcGrid(pGuiElement element, TSMS_STYLE style, uint16_t x, uint16_t y, uint16_t boxWidth, uint16_t boxHeight, uint16_t parentWidth, uint16_t parentHeight);
 
 pGui TSMS_GUI_create(TSMS_DPHP display);
@@ -139,5 +141,7 @@ pRenderOperation TSMS_GUI_createFillRectRenderOperation(uint16_t x, uint16_t y, 
 TSMS_RESULT TSMS_GUI_cancelRenderOperation(pGuiElement element, pRenderOperation operation, TSMS_STYLE style, pLock lock);
 
 TSMS_RESULT TSMS_GUI_releaseRenderOperation(pRenderOperation operation);
+
+TSMS_RESULT TSMS_GUI_releaseGuiElement(pGuiElement element);
 
 #endif //TSMS_GUI_H

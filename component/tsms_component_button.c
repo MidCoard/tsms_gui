@@ -1,9 +1,6 @@
 #include "tsms_component_button.h"
 #include "tsms_list.h"
-#include "tsms_printer.h"
 #include "tsms_component_container.h"
-
-// todo fix invalid grid button can be triggered
 
 TSMS_INLINE void __tsms_internal_button_press(pGuiTouchableElement element, void* handler) {
 	pButton button = (pButton) element;
@@ -26,7 +23,7 @@ TSMS_INLINE void __tsms_internal_button_release(pGuiTouchableElement element, vo
 pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text) {
 	pButton button = (pButton) malloc(sizeof(tButton));
 	if (button == TSMS_NULL) {
-		tString temp = TSMS_STRING_temp("malloc failed for button");
+		tString temp = TSMS_STRING_temp("malloc failed for guiButton");
 		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
@@ -79,4 +76,11 @@ TSMS_RESULT TSMS_BUTTON_onClick(pButton button, TSMS_BUTTON_CALLBACK callback, v
 	button->callback = callback;
 	button->handler = handler;
 	return TSMS_SUCCESS;
+}
+
+TSMS_RESULT TSMS_BUTTON_release(pButton button) {
+	if (button == TSMS_NULL)
+		return TSMS_ERROR;
+	TSMS_INT_LIST_release(button->points);
+	return TSMS_GUI_releaseGuiElement(button);
 }

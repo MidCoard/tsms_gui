@@ -22,4 +22,6 @@ pButton TSMS_BUTTON_create(pText text);
 
 TSMS_RESULT TSMS_BUTTON_onClick(pButton button, TSMS_BUTTON_CALLBACK callback, void * handler);
 
+TSMS_RESULT TSMS_BUTTON_release(pButton button);
+
 #endif //TSMS_COMPONENT_BUTTON_H

@@ -87,7 +87,7 @@ TSMS_INLINE void __tsms_internal_text_callback(pNativeMutableString mutable, voi
 pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pString text) {
 	pText t = (pText) malloc(sizeof(tText));
 	if (t == TSMS_NULL){
-		tString temp = TSMS_STRING_temp("malloc failed for text");
+		tString temp = TSMS_STRING_temp("malloc failed for guiText");
 		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
@@ -116,4 +116,12 @@ pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pString text) {
 
 pText TSMS_TEXT_create(pString text) {
 	return TSMS_TEXT_createWithStyle(TSMS_STYLE_DEFAULT_TEXT, text);
+}
+
+TSMS_RESULT TSMS_TEXT_release(pText text) {
+	if (text == TSMS_NULL)
+		return TSMS_ERROR;
+	TSMS_NATIVE_MUTABLE_STRING_release(text->_native);
+	TSMS_LIST_release(text->list);
+	return TSMS_GUI_releaseGuiElement(text);
 }

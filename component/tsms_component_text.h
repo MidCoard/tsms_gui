@@ -19,4 +19,6 @@ pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pString text);
 
 pText TSMS_TEXT_create(pString text);
 
+TSMS_RESULT TSMS_TEXT_release(pText text);
+
 #endif //TSMS_COMPONENT_TEXT_H

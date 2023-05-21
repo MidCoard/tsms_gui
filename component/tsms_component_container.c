@@ -67,7 +67,7 @@ pContainer TSMS_CONTAINER_create(bool ignoreInvalidGrid) {
 pContainer TSMS_CONTAINER_createWithStyle(TSMS_STYLE style, bool ignoreInvalidGrid) {
 	pContainer container = (pContainer) malloc(sizeof(tContainer));
 	if (container == TSMS_NULL) {
-		tString temp = TSMS_STRING_temp("malloc failed for tContainer");
+		tString temp = TSMS_STRING_temp("malloc failed for guiContainer");
 		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
@@ -90,4 +90,10 @@ pContainer TSMS_CONTAINER_createWithStyle(TSMS_STYLE style, bool ignoreInvalidGr
 
 	container->ignoreInvalidGrid = ignoreInvalidGrid;
 	return container;
+}
+
+TSMS_RESULT TSMS_CONTAINER_release(pContainer container) {
+	if (container == TSMS_NULL)
+		return TSMS_ERROR;
+	return TSMS_GUI_releaseGuiElement(container);
 }

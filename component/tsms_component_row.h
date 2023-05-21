@@ -22,4 +22,6 @@ TSMS_RESULT TSMS_ROW_add(pRow row, pGuiElement element);
 
 TSMS_RESULT TSMS_ROW_addWithWeight(pRow row, pGuiElement element, int weight);
 
+TSMS_RESULT TSMS_ROW_release(pRow row);
+
 #endif //TSMS_COMPONENT_ROW_H

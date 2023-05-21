@@ -39,7 +39,7 @@ pRow TSMS_ROW_create() {
 pRow TSMS_ROW_createWithStyle(TSMS_STYLE style) {
 	pRow row = malloc(sizeof(tRow));
 	if (row == TSMS_NULL) {
-		tString temp = TSMS_STRING_temp("malloc failed for tRow");
+		tString temp = TSMS_STRING_temp("malloc failed for guiRow");
 		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
@@ -77,4 +77,11 @@ TSMS_RESULT TSMS_ROW_addWithWeight(pRow row, pGuiElement element, int weight) {
 	TSMS_GUI_add(row, element);
 	TSMS_INT_LIST_add(row->list, weight);
 	return TSMS_SUCCESS;
+}
+
+TSMS_RESULT TSMS_ROW_release(pRow row) {
+	if (row == TSMS_NULL)
+		return TSMS_ERROR;
+	TSMS_INT_LIST_release(row->list);
+	return TSMS_GUI_releaseGuiElement(row);
 }

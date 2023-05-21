@@ -38,7 +38,7 @@ pColumn TSMS_COLUMN_create() {
 pColumn TSMS_COLUMN_createWithStyle(TSMS_STYLE style) {
 	pColumn column = (pColumn)malloc(sizeof(tColumn));
 	if (column == TSMS_NULL) {
-		tString temp = TSMS_STRING_temp("malloc failed for tColumn");
+		tString temp = TSMS_STRING_temp("malloc failed for guiColumn");
 		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
@@ -75,4 +75,11 @@ TSMS_RESULT TSMS_COLUMN_addWithWeight(pColumn column, pGuiElement element, int w
 	TSMS_GUI_add(column, element);
 	TSMS_INT_LIST_add(column->list, weight);
 	return TSMS_SUCCESS;
+}
+
+TSMS_RESULT TSMS_COLUMN_release(pColumn column) {
+	if (column == TSMS_NULL)
+		return TSMS_ERROR;
+	TSMS_INT_LIST_release(column->list);
+	return TSMS_GUI_releaseGuiElement(column);
 }

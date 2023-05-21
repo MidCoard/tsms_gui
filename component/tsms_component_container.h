@@ -22,4 +22,6 @@ pContainer TSMS_CONTAINER_create(bool ignoreInvalidGrid);
 
 pContainer TSMS_CONTAINER_createWithStyle(TSMS_STYLE style, bool ignoreInvalidGrid);
 
+TSMS_RESULT TSMS_CONTAINER_release(pContainer container);
+
 #endif //TSMS_COMPONENT_CONTAINER_H
