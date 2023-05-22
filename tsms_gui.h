@@ -33,7 +33,7 @@
 
 #define TSMS_GUI_STYLE_RENDER \
 if (style.position == TSMS_STYLE_POSITION_ABSOLUTE) { \
-uint16_t screenHeight = TSMS_GUI_getGUI(element)->display->screen->height; \
+uint16_t screenHeight = TSMS_GUI_getGui(element)->display->screen->height; \
 x = style.left == TSMS_STYLE_AUTO ? 0 : style.left; \
 y = screenHeight - style.top == TSMS_STYLE_AUTO ? screenHeight : screenHeight - style.top; \
 } \
@@ -68,10 +68,9 @@ typedef tRenderOperation * pRenderOperation;
 
 typedef struct TSMS_GRID_INFO TSMS_GRID_INFO;
 
-typedef void(*TSMS_GUI_TOUCHABLE_CALLBACK)(pGuiTouchableElement , void *);
-
 #include "tsms_lock.h"
 
+typedef void(*TSMS_GUI_TOUCHABLE_CALLBACK)(pGuiTouchableElement, uint16_t, uint16_t, void *);
 typedef TSMS_RESULT (*TSMS_GUI_RENDER_FUNCTION)(pGuiElement element, pLock lock);
 typedef TSMS_GRID_INFO (*TSMS_GUI_PRE_RENDER_FUNCTION)(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight);
 
@@ -121,7 +120,7 @@ bool TSMS_GUI_inGrid(TSMS_GRID_INFO grid, uint16_t x, uint16_t y);
 
 void TSMS_GUI_defaultStyleCallback(pMutableStyle style, TSMS_STYLE data, void * handler);
 
-pGui TSMS_GUI_getGUI(pGuiElement element);
+pGui TSMS_GUI_getGui(pGuiElement element);
 
 bool TSMS_GUI_isInvalidGrid(TSMS_GRID_INFO grid);
 

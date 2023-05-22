@@ -1,6 +1,6 @@
 #include "tsms_component_button.h"
 
-TSMS_INLINE void __tsms_internal_button_press(pGuiTouchableElement element, void* handler) {
+TSMS_INLINE void __tsms_internal_button_press(pGuiTouchableElement element, uint16_t x, uint16_t y, void* handler) {
 	pButton button = (pButton) element;
 	TSMS_STYLE style = TSMS_MUTABLE_STYLE_get(button->style);
 	style.backgroundColor = style.pressedColor;
@@ -8,14 +8,14 @@ TSMS_INLINE void __tsms_internal_button_press(pGuiTouchableElement element, void
 	TSMS_MUTABLE_STYLE_set(button->style, style);
 }
 
-TSMS_INLINE void __tsms_internal_button_release(pGuiTouchableElement element, void* handler) {
+TSMS_INLINE void __tsms_internal_button_release(pGuiTouchableElement element, uint16_t x, uint16_t y, void* handler) {
 	pButton button = (pButton) element;
 	TSMS_STYLE style = TSMS_MUTABLE_STYLE_get(button->style);
 	style.backgroundColor = style.releasedColor;
 	style.padding.color = style.releasedColor;
 	TSMS_MUTABLE_STYLE_set(button->style, style);
 	if (button->callback != TSMS_NULL)
-		button->callback(button, button->handler);
+		button->callback(button, x, y, button->handler);
 }
 
 pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text) {
@@ -68,7 +68,7 @@ pButton TSMS_BUTTON_create(pText text) {
 	return TSMS_BUTTON_createWithStyle(TSMS_STYLE_DEFAULT_BUTTON, text);
 }
 
-TSMS_RESULT TSMS_BUTTON_onClick(pButton button, TSMS_TOUCHABLE_CALLBACK callback, void * handler) {
+TSMS_RESULT TSMS_BUTTON_onClick(pButton button, TSMS_GUI_TOUCHABLE_CALLBACK callback, void * handler) {
 	if (button == TSMS_NULL)
 		return TSMS_ERROR;
 	button->callback = callback;

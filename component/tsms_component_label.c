@@ -1,12 +1,12 @@
 #include "tsms_component_label.h"
 
-TSMS_INLINE void __tsms_internal_label_release(pGuiTouchableElement element, void* handler) {
+TSMS_INLINE void __tsms_internal_label_release(pGuiTouchableElement element, uint16_t x, uint16_t y, void* handler) {
 	pLabel label = (pLabel) element;
 	if (label->callback != TSMS_NULL)
-		label->callback(label, label->handler);
+		label->callback(label, x, y, label->handler);
 }
 
-TSMS_INLINE void __tsms_internal_label_press(pGuiTouchableElement element, void* handler) {
+TSMS_INLINE void __tsms_internal_label_press(pGuiTouchableElement element, uint16_t x, uint16_t y, void* handler) {
 }
 
 pLabel TSMS_LABEL_createWithStyle(TSMS_STYLE style, pText text) {
@@ -59,7 +59,7 @@ pLabel TSMS_LABEL_create(pText text) {
 	return TSMS_LABEL_createWithStyle(TSMS_STYLE_DEFAULT_LABEL, text);
 }
 
-TSMS_RESULT TSMS_LABEL_onClick(pLabel label, TSMS_TOUCHABLE_CALLBACK callback, void * handler) {
+TSMS_RESULT TSMS_LABEL_onClick(pLabel label, TSMS_GUI_TOUCHABLE_CALLBACK callback, void * handler) {
 	if (label == TSMS_NULL)
 		return TSMS_ERROR;
 	label->callback = callback;

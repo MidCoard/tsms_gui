@@ -15,7 +15,7 @@ pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text);
 
 pButton TSMS_BUTTON_create(pText text);
 
-TSMS_RESULT TSMS_BUTTON_onClick(pButton button, TSMS_TOUCHABLE_CALLBACK callback, void * handler);
+TSMS_RESULT TSMS_BUTTON_onClick(pButton button, TSMS_GUI_TOUCHABLE_CALLBACK callback, void * handler);
 
 TSMS_RESULT TSMS_BUTTON_release(pButton button);
 

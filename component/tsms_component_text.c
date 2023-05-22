@@ -64,7 +64,7 @@ TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element, pLock l
 			if (font.type == TSMS_FONT_TYPE_INVALID)
 				return TSMS_SUCCESS;
 			struct _textGridInfo* info = text->list->list[i];
-			TSMS_SCREEN_drawCharTopLeft(TSMS_GUI_getGUI(element)->display->screen, info->x,
+			TSMS_SCREEN_drawCharTopLeft(TSMS_GUI_getGui(element)->display->screen, info->x,
 			                            info->y,
 			                            style.font.type, style.font.font, t->cStr[i], *style.font.color,
 			                            style.font.size, lock);
