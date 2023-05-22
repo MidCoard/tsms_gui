@@ -107,11 +107,11 @@ uint16_t TSMS_STYLE_getBoxHeight(TSMS_STYLE style, uint16_t height, uint16_t par
 	return height;
 }
 
-uint16_t TSMS_STYLE_left(TSMS_STYLE style) {
+uint16_t TSMS_STYLE_leftOffset(TSMS_STYLE style) {
 	return style.margin.left + style.padding.left + style.border.left;
 }
 
-uint16_t TSMS_STYLE_top(TSMS_STYLE style) {
+uint16_t TSMS_STYLE_topOffset(TSMS_STYLE style) {
 	return style.margin.top + style.padding.top + style.border.top;
 }
 

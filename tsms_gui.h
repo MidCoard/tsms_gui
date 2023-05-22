@@ -31,6 +31,15 @@
 	TSMS_ILP points; \
 	double lastUpdate;
 
+#define TSMS_GUI_STYLE_RENDER \
+if (style.position == TSMS_STYLE_POSITION_ABSOLUTE) { \
+uint16_t screenHeight = TSMS_GUI_getGUI(element)->display->screen->height; \
+x = style.left == TSMS_STYLE_AUTO ? 0 : style.left; \
+y = screenHeight - style.top == TSMS_STYLE_AUTO ? screenHeight : screenHeight - style.top; \
+} \
+if (style.display == TSMS_STYLE_DISPLAY_NONE) \
+return element->grid = TSMS_GUI_calcGrid(element, style, x, y, 0, 0, parentWidth, parentHeight);
+
 #define TSMS_PRESS_STATE_PRESS 1
 #define TSMS_PRESS_STATE_LONG_PRESS 2
 #define TSMS_PRESS_STATE_PRESS_AND_RELEASE 4

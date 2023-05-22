@@ -28,5 +28,15 @@ TSMS_RESULT TSMS_MUTABLE_STYLE_setDisplayType(pMutableStyle mutableStyle, TSMS_S
 
 TSMS_RESULT TSMS_MUTABLE_STYLE_release(pMutableStyle mutableStyle);
 
+TSMS_RESULT TSMS_MUTABLE_STYLE_setPosition(pMutableStyle mutableStyle, TSMS_STYLE_POSITION position);
+
+TSMS_RESULT TSMS_MUTABLE_STYLE_setLeft(pMutableStyle mutableStyle, uint16_t left);
+
+TSMS_RESULT TSMS_MUTABLE_STYLE_setTop(pMutableStyle mutableStyle, uint16_t top);
+
+TSMS_RESULT TSMS_MUTABLE_STYLE_setZIndex(pMutableStyle mutableStyle, uint16_t zIndex);
+
+TSMS_RESULT TSMS_MUTABLE_STYLE_setAbsolutePosition(pMutableStyle mutableStyle, uint16_t left, uint16_t top, uint16_t zIndex);
+
 
 #endif //TSMS_MUTABLE_STYLE_H

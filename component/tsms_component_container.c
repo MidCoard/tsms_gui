@@ -8,9 +8,10 @@ TSMS_INLINE bool __tsms_internal_isIgnoreInvalidGrid(pGuiElement element) {
 
 TSMS_GRID_INFO TSMS_CONTAINER_preRender(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight) {
 	TSMS_STYLE style = TSMS_STYLE_getStyle(element);
+	TSMS_GUI_STYLE_RENDER
 	uint16_t elementWidth = TSMS_STYLE_elementWidth(style, parentWidth);
 	uint16_t elementHeight = TSMS_STYLE_elementHeight(style, parentHeight);
-	TSMS_GRID_INFO grid = {x + TSMS_STYLE_left(style), y - TSMS_STYLE_top(style), 0, 0, 0, TSMS_STYLE_DISPLAY_BLOCK};
+	TSMS_GRID_INFO grid = (TSMS_GRID_INFO) {x + TSMS_STYLE_leftOffset(style), y - TSMS_STYLE_topOffset(style), 0, 0, 0, TSMS_STYLE_DISPLAY_BLOCK};
 	uint16_t maxWidth = 0;
 	uint16_t currentRowWidth = 0;
 	uint16_t maxHeight = 0;

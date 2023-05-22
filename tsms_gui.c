@@ -179,19 +179,11 @@ TSMS_GRID_INFO TSMS_GUI_calcGrid(pGuiElement element, TSMS_STYLE style, uint16_t
 		if (boxWidth > parentWidth || boxHeight > parentHeight)
 			return TSMS_GUI_INVALID_GRID;
 		return (TSMS_GRID_INFO) {x, y, boxWidth, boxHeight, style.zIndex, TSMS_STYLE_DISPLAY_BLOCK};
-	}
-	else {
-		uint16_t top = style.top;
-		uint16_t left = style.left;
+	} else {
 		uint16_t screenWidth = TSMS_GUI_getGUI(element)->display->screen->width;
-		uint16_t screenHeight = TSMS_GUI_getGUI(element)->display->screen->height;
-		if (top == TSMS_STYLE_AUTO)
-			top = screenHeight;
-		if (left == TSMS_STYLE_AUTO)
-			left = 0;
-		if (boxWidth + left > screenWidth || top - boxHeight < 0)
+		if (boxWidth + x > screenWidth || y - boxHeight < 0)
 			return TSMS_GUI_INVALID_GRID;
-		return (TSMS_GRID_INFO) {left, top, boxWidth, boxHeight, style.zIndex, TSMS_STYLE_DISPLAY_BLOCK};
+		return (TSMS_GRID_INFO) {x, y, boxWidth, boxHeight, style.zIndex, TSMS_STYLE_DISPLAY_BLOCK};
 	}
 }
 

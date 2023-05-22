@@ -90,9 +90,9 @@ uint16_t TSMS_STYLE_getBoxWidth(TSMS_STYLE style, uint16_t width, uint16_t paren
 
 uint16_t TSMS_STYLE_getBoxHeight(TSMS_STYLE style, uint16_t height, uint16_t parentHeight);
 
-uint16_t TSMS_STYLE_left(TSMS_STYLE style);
+uint16_t TSMS_STYLE_leftOffset(TSMS_STYLE style);
 
-uint16_t TSMS_STYLE_top(TSMS_STYLE style);
+uint16_t TSMS_STYLE_topOffset(TSMS_STYLE style);
 
 bool TSMS_STYLE_equals(TSMS_STYLE style1, TSMS_STYLE style2);
 

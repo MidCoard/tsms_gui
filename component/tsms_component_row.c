@@ -4,8 +4,7 @@
 TSMS_INLINE TSMS_GRID_INFO __tsms_internal_row_pre_render(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight) {
 	pRow row = element;
 	TSMS_STYLE style = TSMS_STYLE_getStyle(element);
-	if (style.display == TSMS_STYLE_DISPLAY_NONE)
-		return element->grid = TSMS_GUI_calcGrid(element, style, x, y, 0, 0, parentWidth, parentHeight);
+	TSMS_GUI_STYLE_RENDER
 	uint16_t elementWidth = TSMS_STYLE_elementWidth(style, parentWidth);
 	uint16_t elementHeight = TSMS_STYLE_elementHeight(style, parentHeight);
 	int relativeCount = 0;
@@ -21,7 +20,8 @@ TSMS_INLINE TSMS_GRID_INFO __tsms_internal_row_pre_render(pGuiElement element, u
 	for (TSMS_POS i = 0; i< element->children->length; i++) {
 		pGuiElement child = element->children->list[i];
 		uint16_t offset = (child->computedStyle.position == TSMS_STYLE_POSITION_RELATIVE) ? childWidth * previous : 0;
-		TSMS_GRID_INFO childGrid = child->preRender(child, x + offset + TSMS_STYLE_left(style), y - TSMS_STYLE_top(style), childWidth, elementHeight);
+		TSMS_GRID_INFO childGrid = child->preRender(child, x + offset + TSMS_STYLE_leftOffset(style), y -
+				TSMS_STYLE_topOffset(style), childWidth, elementHeight);
 		if (TSMS_GUI_isInvalidGrid(childGrid) && child->computedStyle.position == TSMS_STYLE_POSITION_RELATIVE)
 			return element->grid = TSMS_GUI_INVALID_GRID;
 		if (child->computedStyle.position == TSMS_STYLE_POSITION_RELATIVE) {

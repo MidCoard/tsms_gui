@@ -10,7 +10,9 @@
 typedef struct TSMS_LABEL tLabel;
 typedef tLabel * pLabel;
 
-typedef void(*TSMS_TOUCHABLE_CALLBACK)(pLabel, void * handler);
+#include "tsms_gui.h"
+
+typedef void(*TSMS_TOUCHABLE_CALLBACK)(pGuiTouchableElement, void * handler);
 
 #include "tsms_component_text.h"
 

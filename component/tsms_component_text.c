@@ -15,15 +15,16 @@ TSMS_INLINE struct _textGridInfo* __tsms_internal_create_text_grid_info(uint16_t
 }
 
 TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight) {
-	TSMS_STYLE style = TSMS_STYLE_getStyle(element);
 	pText text = (pText) element;
+	TSMS_STYLE style = TSMS_STYLE_getStyle(element);
+	TSMS_GUI_STYLE_RENDER
 	pString t = text->text;
 	if (t->length == 0)
 		return element->grid = TSMS_GUI_calcGrid(element,style, x, y, 0, 0, parentWidth, parentHeight);
 	uint16_t maxWidth = 0;
-	uint16_t currentRowWidth = TSMS_STYLE_left(style);
+	uint16_t currentRowWidth = TSMS_STYLE_leftOffset(style);
 	uint16_t maxHeight = 0;
-	uint16_t currentColumnHeight = TSMS_STYLE_top(style);
+	uint16_t currentColumnHeight = TSMS_STYLE_topOffset(style);
 	for (TSMS_POS i = 0; i < text->list->length; i++)
 		free(text->list->list[i]);
 	TSMS_LIST_clear(text->list);
@@ -37,7 +38,7 @@ TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, 
 			currentColumnHeight += maxHeight;
 			maxHeight = 0;
 			maxWidth = max(currentRowWidth, maxWidth);
-			currentRowWidth = TSMS_STYLE_left(style);
+			currentRowWidth = TSMS_STYLE_leftOffset(style);
 			if (width + currentRowWidth > parentWidth || height + currentColumnHeight > parentHeight)
 				return element->grid = TSMS_GUI_INVALID_GRID;
 		}
