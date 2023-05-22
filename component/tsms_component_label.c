@@ -23,7 +23,6 @@ pLabel TSMS_LABEL_createWithStyle(TSMS_STYLE style, pText text) {
 	label->children = TSMS_LIST_create(1);
 	label->style = TSMS_MUTABLE_STYLE_create(style);
 	TSMS_MUTABLE_STYLE_setCallback(label->style, TSMS_GUI_defaultStyleCallback, label);
-	label->lastStyle = style;
 	label->computedStyle = style;
 	label->requestRender = true;
 	label->grid = TSMS_GUI_INVALID_GRID;

@@ -52,12 +52,12 @@ TSMS_RESULT TSMS_CONTAINER_render(pGuiElement element, pLock lock) {
 
 		for (TSMS_POS i = 0; i < element->children->length; i++) {
 			pGuiElement child = element->children->list[i];
-			child->render(child, lock);
+			if (child->computedStyle.position == TSMS_STYLE_POSITION_RELATIVE)
+				child->render(child, lock);
 		}
 	}
 	element->requestRender = false;
 	element->lastGrid = element->grid;
-	element->lastStyle = style;
 	return TSMS_SUCCESS;
 }
 
@@ -79,7 +79,6 @@ pContainer TSMS_CONTAINER_createWithStyle(TSMS_STYLE style, bool ignoreInvalidGr
 	container->children = TSMS_LIST_create(10);
 	container->style = TSMS_MUTABLE_STYLE_create(style);
 	TSMS_MUTABLE_STYLE_setCallback(container->style, TSMS_GUI_defaultStyleCallback, container);
-	container->lastStyle = style;
 	container->computedStyle = style;
 	container->requestRender = true;
 	container->grid = TSMS_GUI_INVALID_GRID;

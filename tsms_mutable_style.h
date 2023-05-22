@@ -6,7 +6,7 @@
 typedef struct TSMS_MUTABLE_STYLE tMutableStyle;
 typedef tMutableStyle * pMutableStyle;
 
-typedef void(*TSMS_MUTABLE_STYLE_CALLBACK)(pMutableStyle, TSMS_STYLE, void * handler);
+typedef void(*TSMS_MUTABLE_STYLE_CALLBACK)(pMutableStyle, TSMS_STYLE oldStyle, TSMS_STYLE newStyle, void * handler);
 
 struct TSMS_MUTABLE_STYLE {
 	TSMS_STYLE style;
@@ -24,7 +24,7 @@ TSMS_RESULT TSMS_MUTABLE_STYLE_setCallback(pMutableStyle mutableStyle, TSMS_MUTA
 
 TSMS_RESULT TSMS_MUTABLE_STYLE_setFont(pMutableStyle mutableStyle, TSMS_STYLE_FONT font);
 
-TSMS_RESULT TSMS_MUTABLE_STYLE_setDisplayType(pMutableStyle mutableStyle, TSMS_STYLE_DISPLAY displayType);
+TSMS_RESULT TSMS_MUTABLE_STYLE_setDisplayType(pMutableStyle mutableStyle, TSMS_STYLE_DISPLAY display);
 
 TSMS_RESULT TSMS_MUTABLE_STYLE_release(pMutableStyle mutableStyle);
 

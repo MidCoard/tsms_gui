@@ -75,7 +75,6 @@ TSMS_INLINE TSMS_RESULT __tsms_internal_text_render(pGuiElement element, pLock l
 	}
 
 	element->requestRender = false;
-	element->lastStyle = style;
 	element->lastGrid = element->grid;
 	return TSMS_SUCCESS;
 }
@@ -99,7 +98,6 @@ pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pString text) {
 	t->children = TSMS_NULL;
 	t->style = TSMS_MUTABLE_STYLE_create(style);
 	TSMS_MUTABLE_STYLE_setCallback(t->style, TSMS_GUI_defaultStyleCallback, t);
-	t->lastStyle = style;
 	t->computedStyle = style;
 	t->requestRender = true;
 	t->grid = TSMS_GUI_INVALID_GRID;

@@ -8,7 +8,6 @@
 	pGuiElement parent; \
 	TSMS_LP children; \
 	pMutableStyle style; \
-	TSMS_STYLE lastStyle; \
 	TSMS_STYLE computedStyle; \
 	bool requestRender; \
 	TSMS_GRID_INFO grid; \
@@ -118,7 +117,7 @@ extern TSMS_GRID_INFO TSMS_GUI_INVALID_GRID;
 
 bool TSMS_GUI_inGrid(TSMS_GRID_INFO grid, uint16_t x, uint16_t y);
 
-void TSMS_GUI_defaultStyleCallback(pMutableStyle style, TSMS_STYLE data, void * handler);
+void TSMS_GUI_defaultStyleCallback(pMutableStyle style, TSMS_STYLE oldStyle, TSMS_STYLE newStyle, void * handler);
 
 pGui TSMS_GUI_getGui(pGuiElement element);
 

@@ -22,7 +22,7 @@ TSMS_INLINE long __tsms_internal_compare_grid_render_info(void * a, void * b) {
 		return element1->requestRender ? -1 : 1;
 	if (element1->grid.zIndex != element2->grid.zIndex)
 		// high zIndex should be rendered first
-		return element2->grid.zIndex - element1->grid.zIndex;
+		return element1->grid.zIndex - element2->grid.zIndex;
 	if (element1->level != element2->level)
 		return element1->level - element2->level;
 	return element1->grid.x - element2->grid.x;
@@ -34,15 +34,24 @@ TSMS_INLINE void __tsms_internal_request_render(pGuiElement element, bool parent
 	if (element->children != TSMS_NULL)
 		for (TSMS_POS i = 0; i < element->children->length; i++)
 			__tsms_internal_request_render(element->children->list[i], element->requestRender || parentFlag);
-	if (parentFlag && style.position != TSMS_STYLE_POSITION_ABSOLUTE)
+	if (parentFlag && style.position == TSMS_STYLE_POSITION_RELATIVE)
 		element->requestRender = false;
 }
 
 TSMS_INLINE void __tsms_internal_check_render(pGuiElement element) {
 	if (element->requestRender)
 		return;
-	if (!TSMS_STYLE_equals(element->lastStyle, element->computedStyle) || !TSMS_GUI_equalsGrid(element->lastGrid, element->grid)) {
+	if (!TSMS_GUI_equalsGrid(element->lastGrid, element->grid)) {
 		element->requestRender = true;
+		pGui gui = TSMS_GUI_getGui(element);
+		for (TSMS_POS i = 0; i < gui->list->length; i++) {
+			pGuiElement child = gui->list->list[i];
+			if (child == element)
+				continue;
+			TSMS_STYLE childStyle = child->computedStyle;
+			if (childStyle.zIndex > element->computedStyle.zIndex)
+				child->requestRender = true;
+		}
 		return;
 	}
 	if (element->children != TSMS_NULL)
@@ -131,36 +140,23 @@ bool TSMS_GUI_inGrid(TSMS_GRID_INFO grid, uint16_t x, uint16_t y) {
 	return x >= grid.x && x < grid.x + grid.width && y <= grid.y && y > grid.y - grid.height;
 }
 
-void TSMS_GUI_defaultStyleCallback(pMutableStyle style, TSMS_STYLE data, void * handler) {
+void TSMS_GUI_defaultStyleCallback(pMutableStyle style, TSMS_STYLE oldStyle, TSMS_STYLE newStyle, void * handler) {
 	pGuiElement element = (pGuiElement) handler;
 	element->requestRender = true;
-    if (style->style.zIndex != data.zIndex) {
-        bool flag = false;
-        uint16_t minZIndex = min(style->style.zIndex, data.zIndex);
-        uint16_t maxZIndex = max(style->style.zIndex, data.zIndex);
-		pGui gui = TSMS_GUI_getGui(element);
-	    __tsms_internal_compute_style(gui);
-	    TSMS_ALGORITHM_sort(gui->touchableList, __tsms_internal_compare_z_index);
-        for (TSMS_POS i = 0; i < element->gui->list->length; i++) {
-            pGuiElement child = element->gui->list->list[i];
-            if (child == element)
-                continue;
-            TSMS_STYLE childStyle = child->computedStyle;
-            if (TSMS_between(minZIndex, childStyle.zIndex, maxZIndex)) {
-                flag = true;
-                break;
-            }
-        }
-        if (flag) {
-            for (TSMS_POS i = 0; i < element->gui->list->length; i++) {
-                pGuiElement child = element->gui->list->list[i];
-                if (child == element)
-                    continue;
-                TSMS_STYLE childStyle = child->computedStyle;
-                if (childStyle.zIndex >= minZIndex)
-                    child->requestRender = true;
-            }
-        }
+	uint16_t oldZIndex = element->computedStyle.zIndex == TSMS_STYLE_INHERIT ? 0 : element->computedStyle.zIndex;
+    pGui gui = TSMS_GUI_getGui(element);
+    __tsms_internal_compute_style(gui);
+	uint16_t newZIndex = element->computedStyle.zIndex;
+	uint16_t minZIndex = min(oldZIndex,  newZIndex);
+	if (oldZIndex != newZIndex)
+        TSMS_ALGORITHM_sort(gui->touchableList, __tsms_internal_compare_z_index);
+    for (TSMS_POS i = 0; i < gui->list->length; i++) {
+        pGuiElement child = gui->list->list[i];
+        if (child == element)
+            continue;
+        TSMS_STYLE childStyle = child->computedStyle;
+        if (childStyle.zIndex > minZIndex)
+            child->requestRender = true;
     }
 }
 
@@ -222,7 +218,6 @@ pGui TSMS_GUI_create(TSMS_DPHP display) {
 	style.height = display->screen->height;
 	gui->style = TSMS_MUTABLE_STYLE_create(style);
 	TSMS_MUTABLE_STYLE_setCallback(gui->style, TSMS_GUI_defaultStyleCallback, gui);
-	gui->lastStyle = style;
 	gui->computedStyle = style;
 	gui->requestRender = true;
 	gui->grid = TSMS_GUI_INVALID_GRID;
@@ -313,6 +308,7 @@ TSMS_RESULT TSMS_GUI_draw(pGui gui) {
 	if (lock != TSMS_NULL) {
 		for (TSMS_POS i = 0; i < renderRange; i++) {
 			pGuiElement element = gui->list->list[i];
+			print("Render: %d\n", element->type);
 			element->render(element, lock);
 		}
 		TSMS_SEQUENCE_PRIORITY_LOCK_unlock(gui->display->screen->lock, lock);
@@ -453,7 +449,7 @@ TSMS_RESULT TSMS_GUI_renderStyle(pGuiElement element, TSMS_STYLE style, pLock lo
 				grid.y - style.margin.top - style.border.top, style.padding.right,
 				grid.height - style.margin.top - style.margin.bottom - style.border.top - style.border.bottom));
 	}
-	if (!TSMS_UTIL_equalsColor(parentColor, *style.backgroundColor)) {
+	if (!TSMS_UTIL_equalsColor(parentColor, *style.backgroundColor) || style.position == TSMS_STYLE_POSITION_ABSOLUTE) {
 		// render background color
 		TSMS_SCREEN_fillRectTopLeft(TSMS_GUI_getGui(element)->display->screen,
 		                            grid.x + style.margin.left + style.border.left + style.padding.left,

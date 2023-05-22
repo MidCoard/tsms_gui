@@ -51,7 +51,6 @@ pRow TSMS_ROW_createWithStyle(TSMS_STYLE style) {
 	row->children = TSMS_LIST_create(10);
 	row->style = TSMS_MUTABLE_STYLE_create(style);
 	TSMS_MUTABLE_STYLE_setCallback(row->style, TSMS_GUI_defaultStyleCallback, row);
-	row->lastStyle = style;
 	row->computedStyle = style;
 	row->requestRender = true;
 	row->grid = TSMS_GUI_INVALID_GRID;

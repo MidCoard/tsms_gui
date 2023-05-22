@@ -17,9 +17,10 @@ TSMS_RESULT TSMS_MUTABLE_STYLE_set(pMutableStyle mutableStyle, TSMS_STYLE style)
 	if (mutableStyle == TSMS_NULL)
 		return TSMS_ERROR;
 	if (!TSMS_STYLE_equals(mutableStyle->style, style)) {
-		if (mutableStyle->callback != TSMS_NULL)
-			mutableStyle->callback(mutableStyle, style, mutableStyle->handler);
+		TSMS_STYLE oldStyle = mutableStyle->style;
 		mutableStyle->style = style;
+		if (mutableStyle->callback != TSMS_NULL)
+			mutableStyle->callback(mutableStyle, oldStyle, mutableStyle->style, mutableStyle->handler);
 	}
 	return TSMS_SUCCESS;
 }
@@ -42,24 +43,22 @@ TSMS_RESULT TSMS_MUTABLE_STYLE_setFont(pMutableStyle mutableStyle, TSMS_STYLE_FO
 	if (mutableStyle == TSMS_NULL)
 		return TSMS_ERROR;
 	if (!TSMS_STYLE_equalsFont(mutableStyle->style.font, font)) {
-		TSMS_STYLE newStyle = mutableStyle->style;
-		newStyle.font = font;
+		TSMS_STYLE oldStyle = mutableStyle->style;
+		mutableStyle->style.font = font;
 		if (mutableStyle->callback != TSMS_NULL)
-			mutableStyle->callback(mutableStyle, newStyle, mutableStyle->handler);
-		mutableStyle->style = newStyle;
+			mutableStyle->callback(mutableStyle, oldStyle, mutableStyle->style, mutableStyle->handler);
 	}
 	return TSMS_SUCCESS;
 }
 
-TSMS_RESULT TSMS_MUTABLE_STYLE_setDisplayType(pMutableStyle mutableStyle, TSMS_STYLE_DISPLAY displayType) {
+TSMS_RESULT TSMS_MUTABLE_STYLE_setDisplayType(pMutableStyle mutableStyle, TSMS_STYLE_DISPLAY display) {
 	if (mutableStyle == TSMS_NULL)
 		return TSMS_ERROR;
-	if (mutableStyle->style.display != displayType) {
-		TSMS_STYLE newStyle = mutableStyle->style;
-		newStyle.display = displayType;
+	if (mutableStyle->style.display != display) {
+		TSMS_STYLE oldStyle = mutableStyle->style;
+		mutableStyle->style.display = display;
 		if (mutableStyle->callback != TSMS_NULL)
-			mutableStyle->callback(mutableStyle, newStyle, mutableStyle->handler);
-		mutableStyle->style = newStyle;
+			mutableStyle->callback(mutableStyle, oldStyle, mutableStyle->style, mutableStyle->handler);
 	}
 	return TSMS_SUCCESS;
 }
@@ -75,11 +74,10 @@ TSMS_RESULT TSMS_MUTABLE_STYLE_setPosition(pMutableStyle mutableStyle, TSMS_STYL
 	if (mutableStyle == TSMS_NULL)
 		return TSMS_ERROR;
 	if (mutableStyle->style.position != position) {
-		TSMS_STYLE newStyle = mutableStyle->style;
-		newStyle.position = position;
+		TSMS_STYLE oldStyle = mutableStyle->style;
+		mutableStyle->style.position = position;
 		if (mutableStyle->callback != TSMS_NULL)
-			mutableStyle->callback(mutableStyle, newStyle, mutableStyle->handler);
-		mutableStyle->style = newStyle;
+			mutableStyle->callback(mutableStyle, oldStyle, mutableStyle->style, mutableStyle->handler);
 	}
 	return TSMS_SUCCESS;
 }
@@ -88,11 +86,10 @@ TSMS_RESULT TSMS_MUTABLE_STYLE_setLeft(pMutableStyle mutableStyle, uint16_t left
 	if (mutableStyle == TSMS_NULL)
 		return TSMS_ERROR;
 	if (mutableStyle->style.left != left) {
-		TSMS_STYLE newStyle = mutableStyle->style;
-		newStyle.left = left;
+		TSMS_STYLE oldStyle = mutableStyle->style;
+		mutableStyle->style.left = left;
 		if (mutableStyle->callback != TSMS_NULL)
-			mutableStyle->callback(mutableStyle, newStyle, mutableStyle->handler);
-		mutableStyle->style = newStyle;
+			mutableStyle->callback(mutableStyle, oldStyle, mutableStyle->style, mutableStyle->handler);
 	}
 	return TSMS_SUCCESS;
 }
@@ -101,11 +98,10 @@ TSMS_RESULT TSMS_MUTABLE_STYLE_setTop(pMutableStyle mutableStyle, uint16_t top) 
 	if (mutableStyle == TSMS_NULL)
 		return TSMS_ERROR;
 	if (mutableStyle->style.top != top) {
-		TSMS_STYLE newStyle = mutableStyle->style;
-		newStyle.top = top;
+		TSMS_STYLE oldStyle = mutableStyle->style;
+		mutableStyle->style.top = top;
 		if (mutableStyle->callback != TSMS_NULL)
-			mutableStyle->callback(mutableStyle, newStyle, mutableStyle->handler);
-		mutableStyle->style = newStyle;
+			mutableStyle->callback(mutableStyle, oldStyle , mutableStyle->style, mutableStyle->handler);
 	}
 	return TSMS_SUCCESS;
 }
@@ -114,11 +110,10 @@ TSMS_RESULT TSMS_MUTABLE_STYLE_setZIndex(pMutableStyle mutableStyle, uint16_t zI
 	if (mutableStyle == TSMS_NULL)
 		return TSMS_ERROR;
 	if (mutableStyle->style.zIndex != zIndex) {
-		TSMS_STYLE newStyle = mutableStyle->style;
-		newStyle.zIndex = zIndex;
+		TSMS_STYLE oldStyle = mutableStyle->style;
+		mutableStyle->style.zIndex = zIndex;
 		if (mutableStyle->callback != TSMS_NULL)
-			mutableStyle->callback(mutableStyle, newStyle, mutableStyle->handler);
-		mutableStyle->style = newStyle;
+			mutableStyle->callback(mutableStyle, oldStyle, mutableStyle->style, mutableStyle->handler);
 	}
 	return TSMS_SUCCESS;
 }
@@ -129,13 +124,12 @@ TSMS_RESULT TSMS_MUTABLE_STYLE_setAbsolutePosition(pMutableStyle mutableStyle, u
 	if (mutableStyle->style.left != left ||
 		mutableStyle->style.top != top ||
 		mutableStyle->style.zIndex != zIndex) {
-		TSMS_STYLE newStyle = mutableStyle->style;
-		newStyle.left = left;
-		newStyle.top = top;
-		newStyle.zIndex = zIndex;
+		TSMS_STYLE oldStyle = mutableStyle->style;
+		mutableStyle->style.left = left;
+		mutableStyle->style.top = top;
+		mutableStyle->style.zIndex = zIndex;
 		if (mutableStyle->callback != TSMS_NULL)
-			mutableStyle->callback(mutableStyle, newStyle, mutableStyle->handler);
-		mutableStyle->style = newStyle;
+			mutableStyle->callback(mutableStyle, oldStyle, mutableStyle->style, mutableStyle->handler);
 	}
 	return TSMS_SUCCESS;
 }

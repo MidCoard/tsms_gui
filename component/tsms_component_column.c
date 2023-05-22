@@ -49,7 +49,6 @@ pColumn TSMS_COLUMN_createWithStyle(TSMS_STYLE style) {
 	column->children = TSMS_LIST_create(10);
 	column->style = TSMS_MUTABLE_STYLE_create(style);
 	TSMS_MUTABLE_STYLE_setCallback(column->style, TSMS_GUI_defaultStyleCallback, column);
-	column->lastStyle = style;
 	column->computedStyle = style;
 	column->requestRender = true;
 	column->grid = TSMS_GUI_INVALID_GRID;

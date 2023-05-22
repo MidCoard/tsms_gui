@@ -47,30 +47,30 @@ typedef struct {
 } TSMS_STYLE_BORDER;
 
 typedef struct {
-	TSMS_FONT_TYPE type;
-	TSMS_FONT_SIZE size;
-	void * font;
-	TSMS_COLOR* color;
+	TSMS_FONT_TYPE type; // can be INHERIT
+	TSMS_FONT_SIZE size; // can be INHERIT
+	void * font; // can be INHERIT
+	TSMS_COLOR* color; // can be INHERIT
 } TSMS_STYLE_FONT;
 
 typedef struct {
 	TSMS_STYLE_MARGIN margin;
 	TSMS_STYLE_BORDER border;
 	TSMS_STYLE_PADDING padding;
-	TSMS_COLOR* backgroundColor;
+	TSMS_COLOR* backgroundColor; // can be INHERIT
 	TSMS_COLOR* pressedColor;
 	TSMS_COLOR* releasedColor;
-	uint16_t width;
-	uint16_t height;
-	uint16_t maxWidth;
-	uint16_t maxHeight;
-	uint16_t minWidth;
-	uint16_t minHeight;
+	uint16_t width; // can be AUTO
+	uint16_t height; // can be AUTO
+	uint16_t maxWidth; // can be INHERIT AUTO
+	uint16_t maxHeight; // can be INHERIT AUTO
+	uint16_t minWidth; // can be INHERIT AUTO
+	uint16_t minHeight; // can be INHERIT AUTO
 	TSMS_STYLE_FONT font;
-	TSMS_STYLE_POSITION position;
-	uint16_t zIndex;
-	uint16_t top;
-	uint16_t left;
+	TSMS_STYLE_POSITION position; // can be INHERIT
+	uint16_t zIndex; // can be INHERIT
+	uint16_t top; // can be AUTO
+	uint16_t left; // can be AUTO
 	TSMS_STYLE_DISPLAY display;
 } TSMS_STYLE;
 

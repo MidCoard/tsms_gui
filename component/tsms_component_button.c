@@ -32,7 +32,6 @@ pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text) {
 	button->children = TSMS_LIST_create(1);
 	button->style = TSMS_MUTABLE_STYLE_create(style);
 	TSMS_MUTABLE_STYLE_setCallback(button->style, TSMS_GUI_defaultStyleCallback, button);
-	button->lastStyle = style;
 	button->computedStyle = style;
 	button->requestRender = true;
 	button->grid = TSMS_GUI_INVALID_GRID;
