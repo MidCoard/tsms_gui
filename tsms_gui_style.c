@@ -136,7 +136,7 @@ TSMS_STYLE  TSMS_STYLE_getStyle(pGuiElement element) {
 		style.position = parentStyle.position;
 	if (style.backgroundColor == TSMS_STYLE_COLOR_INHERT)
 		style.backgroundColor = parentStyle.backgroundColor;
-	if (style.zIndex == TSMS_STYLE_INHERIT || style.zIndex < parentStyle.zIndex)
+	if (style.zIndex == TSMS_STYLE_INHERIT || style.zIndex < parentStyle.zIndex || style.position == TSMS_STYLE_POSITION_RELATIVE)
 		style.zIndex = parentStyle.zIndex;
 	if (parentStyle.display == TSMS_STYLE_DISPLAY_NONE)
 		style.display = TSMS_STYLE_DISPLAY_NONE;

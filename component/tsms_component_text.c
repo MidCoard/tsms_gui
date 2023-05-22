@@ -121,6 +121,8 @@ TSMS_RESULT TSMS_TEXT_release(pText text) {
 	if (text == TSMS_NULL)
 		return TSMS_ERROR;
 	TSMS_NATIVE_MUTABLE_STRING_release(text->_native);
+	for (TSMS_POS i = 0; i < text->list->length; i++)
+		free(text->list->list[i]);
 	TSMS_LIST_release(text->list);
 	return TSMS_GUI_releaseGuiElement(text);
 }

@@ -11,6 +11,9 @@ TSMS_GRID_INFO TSMS_GUI_INVALID_GRID = {0, 0, 0, 0, 0, TSMS_STYLE_DISPLAY_BLOCK}
 TSMS_INLINE long __tsms_internal_compare_z_index(void * a, void * b) {
 	pGuiElement element1 = (pGuiElement) a;
 	pGuiElement element2 = (pGuiElement) b;
+	if (element1->computedStyle.position != element2->computedStyle.position)
+		// absolute position should trigger first
+		return element2->computedStyle.position - element1->computedStyle.position;
 	return element2->computedStyle.zIndex - element1->computedStyle.zIndex;
 }
 
@@ -20,8 +23,11 @@ TSMS_INLINE long __tsms_internal_compare_grid_render_info(void * a, void * b) {
 	if (element1->requestRender != element2->requestRender)
 		// true requestRender should be rendered first
 		return element1->requestRender ? -1 : 1;
+	if (element1->computedStyle.position != element2->computedStyle.position)
+		// relative position should be rendered first
+		return element1->computedStyle.position - element2->computedStyle.position;
 	if (element1->grid.zIndex != element2->grid.zIndex)
-		// high zIndex should be rendered first
+		// low zIndex should be rendered first
 		return element1->grid.zIndex - element2->grid.zIndex;
 	if (element1->level != element2->level)
 		return element1->level - element2->level;
@@ -143,8 +149,10 @@ bool TSMS_GUI_inGrid(TSMS_GRID_INFO grid, uint16_t x, uint16_t y) {
 void TSMS_GUI_defaultStyleCallback(pMutableStyle style, TSMS_STYLE oldStyle, TSMS_STYLE newStyle, void * handler) {
 	pGuiElement element = (pGuiElement) handler;
 	element->requestRender = true;
-	uint16_t oldZIndex = element->computedStyle.zIndex == TSMS_STYLE_INHERIT ? 0 : element->computedStyle.zIndex;
     pGui gui = TSMS_GUI_getGui(element);
+	if (gui == TSMS_NULL)
+		return;
+	uint16_t oldZIndex = element->computedStyle.zIndex == TSMS_STYLE_INHERIT ? 0 : element->computedStyle.zIndex;
     __tsms_internal_compute_style(gui);
 	uint16_t newZIndex = element->computedStyle.zIndex;
 	uint16_t minZIndex = min(oldZIndex,  newZIndex);
@@ -155,7 +163,7 @@ void TSMS_GUI_defaultStyleCallback(pMutableStyle style, TSMS_STYLE oldStyle, TSM
         if (child == element)
             continue;
         TSMS_STYLE childStyle = child->computedStyle;
-        if (childStyle.zIndex > minZIndex)
+        if ((childStyle.zIndex > minZIndex && childStyle.position == TSMS_STYLE_POSITION_ABSOLUTE && element->computedStyle.position == TSMS_STYLE_POSITION_ABSOLUTE) || (element->computedStyle.position == TSMS_STYLE_POSITION_RELATIVE && childStyle.position == TSMS_STYLE_POSITION_ABSOLUTE))
             child->requestRender = true;
     }
 }
@@ -308,7 +316,6 @@ TSMS_RESULT TSMS_GUI_draw(pGui gui) {
 	if (lock != TSMS_NULL) {
 		for (TSMS_POS i = 0; i < renderRange; i++) {
 			pGuiElement element = gui->list->list[i];
-			print("Render: %d\n", element->type);
 			element->render(element, lock);
 		}
 		TSMS_SEQUENCE_PRIORITY_LOCK_unlock(gui->display->screen->lock, lock);
@@ -553,6 +560,10 @@ TSMS_RESULT TSMS_GUI_releaseGuiElement(pGuiElement element) {
 	if (element == TSMS_NULL)
 		return TSMS_ERROR;
 	TSMS_LIST_release(element->children);
+	for (TSMS_POS i = 0; i < element->renderOperations->length; i++) {
+		pRenderOperation operation = element->renderOperations->list[i];
+		TSMS_GUI_releaseRenderOperation(operation);
+	}
 	TSMS_LIST_release(element->renderOperations);
 	TSMS_MUTABLE_STYLE_release(element->style);
 	free(element);
