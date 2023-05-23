@@ -85,6 +85,7 @@ TSMS_INLINE pHtmlNode __tsms_internal_parse_node(pString tagValue) {
 			inEscape = false;
 		} else if (c == '"') {
 			inQuote = !inQuote;
+			TSMS_STRING_appendChar(temp, c);
 		} else if (inQuote) {
 			TSMS_STRING_appendChar(temp, c);
 		} else if (c == ' ') {
@@ -115,7 +116,7 @@ TSMS_INLINE pHtmlNode __tsms_internal_parse_node(pString tagValue) {
 		pString attribute = list->list[i];
 		TSMS_POS index = TSMS_STRING_indexOf(attribute, '=');
 		TSMS_POS quoteIndex = TSMS_STRING_indexOf(attribute, '"');
-		if (index <= quoteIndex && index != attribute->length - 1) {
+		if ((index <= quoteIndex || quoteIndex == -1) && index != attribute->length - 1) {
 			if (index == -1) {
 				pString key = TSMS_STRING_subString(attribute, 0, attribute->length);
 				TSMS_MAP_put(node->attributes, key, TSMS_NULL);
@@ -185,6 +186,7 @@ pHtml TSMS_HTML_parse(pString html) {
 			inEscape = false;
 		} else if (c == '"') {
 			inQuote = !inQuote;
+			TSMS_STRING_appendChar(temp, c);
 		} else if (inQuote) {
 			TSMS_STRING_appendChar(temp, c);
 		} else if (c == '\\') {

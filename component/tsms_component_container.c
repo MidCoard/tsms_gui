@@ -69,7 +69,6 @@ pContainer TSMS_CONTAINER_createWithStyle(TSMS_STYLE style, bool ignoreInvalidGr
 	pContainer container = (pContainer) TSMS_malloc(sizeof(tContainer));
 	if (container == TSMS_NULL)
 		return TSMS_NULL;
-	TSMS_GUI_initGuiElement(container);
 	TSMS_INIT_GUI_CONTAINER_ELEMENT(container, TSMS_GUI_TYPE_CONTAINER, TSMS_CONTAINER_preRender, TSMS_CONTAINER_render, style, TSMS_NULL, ignoreInvalidGrid);
 	if (container->style == TSMS_NULL || container->children == TSMS_NULL || container->renderOperations == TSMS_NULL) {
 		TSMS_CONTAINER_release(container);
