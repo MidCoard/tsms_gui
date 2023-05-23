@@ -1,8 +1,8 @@
 #ifndef TSMS_GUI_PARSER_H
 #define TSMS_GUI_PARSER_H
 
-#include "tsms_gui.h"
+#include "tsms_string.h"
 
-pGui TSMS_GUI_parse(TSMS_DPHP display, pString html, pString css, pString js);
+pString TSMS_GUI_parse(pString html, pString css);
 
 #endif //TSMS_GUI_PARSER_H

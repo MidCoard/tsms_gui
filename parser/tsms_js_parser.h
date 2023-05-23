@@ -1,8 +1,19 @@
-//
-// Created by 周蜀杰 on 2023/5/22.
-//
+#ifndef TSMS_JS_PARSER_H
+#define TSMS_JS_PARSER_H
 
-#ifndef TSMS_GUI_TSMS_JS_PARSER_H
-#define TSMS_GUI_TSMS_JS_PARSER_H
+typedef struct TSMS_JS_NODE tJsNode;
+typedef tJsNode * pJsNode;
 
-#endif //TSMS_GUI_TSMS_JS_PARSER_H
+#include "tsms_string.h"
+
+struct TSMS_JS_NODE {
+	pString code;
+};
+
+pJsNode TSMS_JS_parse(pString js);
+
+pString TSMS_JS_compile(pJsNode js);
+
+TSMS_RESULT TSMS_JS_release(pJsNode node);
+
+#endif //TSMS_JS_PARSER_H

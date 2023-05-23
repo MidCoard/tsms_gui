@@ -13,6 +13,7 @@ typedef tHtmlNode* pHtmlNode;
 
 struct TSMS_HTML {
 	pHtmlNode root;
+	TSMS_MP ids;
 };
 
 struct TSMS_HTML_NODE {
@@ -20,8 +21,15 @@ struct TSMS_HTML_NODE {
 	TSMS_LP children;
 	pString tag;
 	pHtmlNode parent;
+	TSMS_MP style;
 };
 
+void TSMS_HTML_release(pHtml html);
+
 pHtml TSMS_HTML_parse(pString html);
+
+TSMS_LP TSMS_HTML_getElementsBySelector(pHtml html, pString query);
+
+pHtmlNode TSMS_HTML_getElementById(pHtml html, pString id);
 
 #endif //TSMS_HTML_PARSER_H

@@ -15,13 +15,9 @@ TSMS_INLINE void __tsms_internal_release_node(pHtmlNode node) {
 	if (node->children != TSMS_NULL)
 		for (TSMS_POS i = 0; i < node->children->length; i++)
 			__tsms_internal_release_node(node->children->list[i]);
+	TSMS_MAP_release(node->style);
 	TSMS_LIST_release(node->children);
 	free(node);
-}
-
-TSMS_INLINE void __tsms_internal_release(pHtml html) {
-	__tsms_internal_release_node(html->root);
-	free(html);
 }
 
 TSMS_INLINE pHtmlNode __tsms_internal_create_node(pString tag) {
@@ -33,14 +29,16 @@ TSMS_INLINE pHtmlNode __tsms_internal_create_node(pString tag) {
 	                                   (TSMS_COMPARE_FUNCTION) TSMS_STRING_compare);
 	node->children = TSMS_LIST_create(10);
 	node->parent = TSMS_NULL;
-	if (node->children == TSMS_NULL || node->attributes == TSMS_NULL) {
+	node->style = TSMS_MAP_create(16, (TSMS_HASH_FUNCTION) TSMS_STRING_hash,
+	                              (TSMS_COMPARE_FUNCTION) TSMS_STRING_compare);
+	if (node->children == TSMS_NULL || node->attributes == TSMS_NULL || node->style == TSMS_NULL) {
 		__tsms_internal_release_node(node);
 		return TSMS_NULL;
 	}
 	return node;
 }
 
-TSMS_INLINE pHtmlNode __tsms_internal_parse_node(pString tagValue) {
+TSMS_INLINE pHtmlNode __tsms_internal_parse_node(pString tagValue, pHtml html) {
 	pString temp = TSMS_STRING_create();
 	bool inQuote = false;
 	bool inEscape = false;
@@ -119,10 +117,14 @@ TSMS_INLINE pHtmlNode __tsms_internal_parse_node(pString tagValue) {
 		if ((index <= quoteIndex || quoteIndex == -1) && index != attribute->length - 1) {
 			if (index == -1) {
 				pString key = TSMS_STRING_subString(attribute, 0, attribute->length);
+				if (TSMS_STRING_equals(key, TSMS_STRING_static("id")))
+					TSMS_MAP_put(html->ids, TSMS_NULL, node);
 				TSMS_MAP_put(node->attributes, key, TSMS_NULL);
 			} else {
 				pString key = TSMS_STRING_subString(attribute, 0, index);
 				pString value = TSMS_STRING_subString(attribute, index + 1, attribute->length);
+				if (TSMS_STRING_equals(key, TSMS_STRING_static("id")))
+					TSMS_MAP_put(html->ids, value, node);
 				TSMS_MAP_put(node->attributes, key, value);
 			}
 		}
@@ -132,13 +134,21 @@ TSMS_INLINE pHtmlNode __tsms_internal_parse_node(pString tagValue) {
 	return node;
 }
 
+void TSMS_HTML_release(pHtml html) {
+	__tsms_internal_release_node(html->root);
+	TSMS_MAP_release(html->ids);
+	free(html);
+}
+
 pHtml TSMS_HTML_parse(pString html) {
 	pHtml htmlObject = (pHtml) TSMS_malloc(sizeof(tHtml));
 	if (htmlObject == TSMS_NULL)
 		return TSMS_NULL;
 	htmlObject->root = __tsms_internal_create_node(TSMS_STRING_static("root"));
+	htmlObject->ids = TSMS_MAP_create(16, (TSMS_HASH_FUNCTION) TSMS_STRING_hash,
+	                                  (TSMS_COMPARE_FUNCTION) TSMS_STRING_compare);
 	if (htmlObject->root == TSMS_NULL) {
-		__tsms_internal_release(htmlObject);
+		TSMS_HTML_release(htmlObject);
 		return TSMS_NULL;
 	}
 	pString temp = TSMS_STRING_create();
@@ -215,7 +225,7 @@ pHtml TSMS_HTML_parse(pString html) {
 							currentNode = currentNode->parent;
 						}
 					} else {
-						pHtmlNode node = __tsms_internal_parse_node(trim);
+						pHtmlNode node = __tsms_internal_parse_node(trim, htmlObject);
 						if (node != TSMS_NULL) {
 							TSMS_LIST_add(currentNode->children, node);
 							node->parent = currentNode;
@@ -234,4 +244,16 @@ pHtml TSMS_HTML_parse(pString html) {
 	TSMS_STRING_release(temp);
 
 	return htmlObject;
+}
+
+TSMS_LP TSMS_HTML_getElementsBySelector(pHtml html, pString query) {
+	TSMS_LP list = TSMS_LIST_create(10);
+	if (list == TSMS_NULL)
+		return TSMS_NULL;
+	// analyse selector todo
+	return list;
+}
+
+pHtmlNode TSMS_HTML_getElementById(pHtml html, pString id) {
+	return TSMS_MAP_get(html->ids, id);
 }
