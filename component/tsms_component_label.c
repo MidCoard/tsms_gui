@@ -10,13 +10,14 @@ TSMS_INLINE void __tsms_internal_label_press(pGuiTouchableElement element, uint1
 }
 
 pLabel TSMS_LABEL_createWithStyle(TSMS_STYLE style, pText text) {
-	pLabel label = (pLabel) malloc(sizeof(tLabel));
-	if (label == TSMS_NULL) {
-		tString temp = TSMS_STRING_temp("malloc failed for guiLabel");
-		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
+	pLabel label = (pLabel) TSMS_malloc(sizeof(tLabel));
+	if (label == TSMS_NULL)
+		return TSMS_NULL;
+	TSMS_INIT_GUI_LABEL_ELEMENT(label, TSMS_GUI_TYPE_TOUCHABLE, TSMS_CONTAINER_preRender, TSMS_CONTAINER_render, style, TSMS_NULL, __tsms_internal_label_press, label, __tsms_internal_label_release, label, TSMS_NULL, TSMS_NULL, TSMS_NULL, TSMS_NULL, text)
+	if (label->style == TSMS_NULL || label->children == TSMS_NULL || label->renderOperations == TSMS_NULL || label->points == TSMS_NULL) {
+		TSMS_LABEL_release(label);
 		return TSMS_NULL;
 	}
-	TSMS_INIT_GUI_LABEL_ELEMENT(label, TSMS_GUI_TYPE_TOUCHABLE, TSMS_CONTAINER_preRender, TSMS_CONTAINER_render, style, TSMS_NULL, __tsms_internal_label_press, label, __tsms_internal_label_release, label, TSMS_NULL, TSMS_NULL, TSMS_NULL, TSMS_NULL, text)
 	return label;
 }
 

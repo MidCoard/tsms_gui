@@ -5,12 +5,9 @@ TSMS_INLINE void __tsms_internal_native_callback(pNativeMutable nativeMutable, v
 	pNativeMutableString nativeMutableString = (pNativeMutableString)handler;
 	pString str = nativeMutable->data;
 	nativeMutableString->str->size = str->length + 1;
-	void * tempBuffer = realloc(nativeMutableString->str->buffer, nativeMutableString->str->size);
-	if (tempBuffer == TSMS_NULL) {
-		tString temp = TSMS_STRING_temp("realloc failed for nativeMutableString buffer");
-		TSMS_ERR_report(TSMS_ERROR_TYPE_REALLOC_FAILED, &temp);
+	void * tempBuffer = TSMS_realloc(nativeMutableString->str->buffer, nativeMutableString->str->size);
+	if (tempBuffer == TSMS_NULL)
 		return;
-	}
 	memcpy(tempBuffer, str->cStr, nativeMutableString->str->size);
 	nativeMutableString->str->buffer = tempBuffer;
 	if (nativeMutableString->callback != TSMS_NULL)

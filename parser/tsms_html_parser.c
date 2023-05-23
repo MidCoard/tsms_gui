@@ -1,38 +1,45 @@
 #include "tsms_html_parser.h"
+#include "tsms.h"
+
+TSMS_INLINE void __tsms_internal_release_node(pHtmlNode node) {
+	TSMS_STRING_release(node->tag);
+	TSMS_MAP_release(node->attributes);
+	if (node->children != TSMS_NULL)
+		for (TSMS_POS i = 0; i < node->children->length; i++)
+			__tsms_internal_release_node(node->children->list[i]);
+	TSMS_LIST_release(node->children);
+	free(node);
+}
+
+TSMS_INLINE void __tsms_internal_release(pHtml html) {
+	__tsms_internal_release_node(html->root);
+	free(html);
+}
 
 TSMS_INLINE pHtmlNode __tsms_internal_create_node(pString tag) {
-	pHtmlNode node = (pHtmlNode) malloc(sizeof(tHtmlNode));
-	if (node == TSMS_NULL) {
-		tString temp = TSMS_STRING_temp("malloc failed for node");
-		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
+	pHtmlNode node = (pHtmlNode) TSMS_malloc(sizeof(tHtmlNode));
+	if (node == TSMS_NULL)
 		return TSMS_NULL;
-	}
 	node->tag = tag;
 	node->attributes = TSMS_MAP_create(16, (TSMS_HASH_FUNCTION) TSMS_STRING_hash,
 	                                   (TSMS_COMPARE_FUNCTION) TSMS_STRING_compare);
-	if (node->attributes == TSMS_NULL) {
-		tString temp = TSMS_STRING_temp("malloc failed for node attributes");
-		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
-
-		return TSMS_NULL;
-	}
 	node->children = TSMS_LIST_create(10);
-	if (node->children == TSMS_NULL) {
-		tString temp = TSMS_STRING_temp("malloc failed for node children");
-		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
+	if (node->children == TSMS_NULL || node->attributes == TSMS_NULL) {
+		__tsms_internal_release_node(node);
 		return TSMS_NULL;
 	}
 	return node;
 }
 
 pHtml TSMS_HTML_parse(pString html) {
-	pHtml htmlObject = (pHtml) malloc(sizeof(tHtml));
-	if (htmlObject == TSMS_NULL) {
-		tString temp = TSMS_STRING_temp("malloc failed for htmlObject");
-		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
+	pHtml htmlObject = (pHtml) TSMS_malloc(sizeof(tHtml));
+	if (htmlObject == TSMS_NULL)
+		return TSMS_NULL;
+	htmlObject->root = __tsms_internal_create_node(TSMS_STRING_static("root"));
+	if (htmlObject->root == TSMS_NULL) {
+		__tsms_internal_release(htmlObject);
 		return TSMS_NULL;
 	}
-	htmlObject->root = __tsms_internal_create_node(TSMS_STRING_static("root"));
 	pString temp = TSMS_STRING_create();
 	bool inTag = false;
 	bool inValue = false;
