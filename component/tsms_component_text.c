@@ -17,7 +17,7 @@ TSMS_INLINE struct _textGridInfo* __tsms_internal_create_text_grid_info(uint16_t
 TSMS_INLINE TSMS_GRID_INFO __tsms_internal_text_pre_render(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight) {
 	pText text = (pText) element;
 	TSMS_STYLE style = TSMS_STYLE_getStyle(element);
-	TSMS_GUI_STYLE_RENDER
+	TSMS_GUI_STYLE_RENDER(element)
 	pString t = text->text;
 	if (t->length == 0)
 		return element->grid = TSMS_GUI_calcGrid(element,style, x, y, 0, 0, parentWidth, parentHeight);
@@ -91,20 +91,8 @@ pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pString text) {
 		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
-	t->type = TSMS_GUI_TYPE_TEXT;
-	t->preRender = __tsms_internal_text_pre_render;
-	t->render = __tsms_internal_text_render;
-	t->parent = TSMS_NULL;
-	t->children = TSMS_NULL;
-	t->style = TSMS_MUTABLE_STYLE_create(style);
-	TSMS_MUTABLE_STYLE_setCallback(t->style, TSMS_GUI_defaultStyleCallback, t);
-	t->computedStyle = style;
-	t->requestRender = true;
-	t->grid = TSMS_GUI_INVALID_GRID;
-	t->lastGrid = TSMS_GUI_INVALID_GRID;
-	t->gui = TSMS_NULL;
-	t->level = 0;
-	t->renderOperations = TSMS_LIST_create(10);
+
+	TSMS_INIT_GUI_ELEMENT(t, TSMS_GUI_TYPE_TEXT, __tsms_internal_text_pre_render, __tsms_internal_text_render, style, TSMS_NULL);
 
 	t->_native = TSMS_NATIVE_MUTABLE_STRING_create(text);
 	TSMS_NATIVE_MUTABLE_STRING_setCallback(t->_native, __tsms_internal_text_callback, t);

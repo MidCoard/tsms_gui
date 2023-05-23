@@ -5,6 +5,10 @@
 	TSMS_EXTEND_GUI_ELEMENT \
 	bool ignoreInvalidGrid;
 
+#define TSMS_INIT_GUI_CONTAINER_ELEMENT(element, type0, preRender0, render0, style0, gui0, ignoreInvalidGrid0) \
+	TSMS_INIT_GUI_ELEMENT(element, type0, preRender0, render0, style0, gui0) \
+	element->ignoreInvalidGrid = ignoreInvalidGrid0;
+
 typedef struct TSMS_CONTAINER tContainer;
 typedef tContainer * pContainer;
 

@@ -216,25 +216,10 @@ pGui TSMS_GUI_create(TSMS_DPHP display) {
 		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
-	gui->type = TSMS_GUI_TYPE_GUI;
-	gui->preRender = TSMS_CONTAINER_preRender;
-	gui->render = TSMS_CONTAINER_render;
-	gui->parent = TSMS_NULL;
-	gui->children = TSMS_LIST_create(10);
 	TSMS_STYLE style = TSMS_STYLE_DEFAULT;
 	style.width = display->screen->width;
 	style.height = display->screen->height;
-	gui->style = TSMS_MUTABLE_STYLE_create(style);
-	TSMS_MUTABLE_STYLE_setCallback(gui->style, TSMS_GUI_defaultStyleCallback, gui);
-	gui->computedStyle = style;
-	gui->requestRender = true;
-	gui->grid = TSMS_GUI_INVALID_GRID;
-	gui->lastGrid = TSMS_GUI_INVALID_GRID;
-	gui->gui = gui;
-	gui->level = 0;
-	gui->renderOperations = TSMS_LIST_create(10);
-	gui->ignoreInvalidGrid = true;
-
+	TSMS_INIT_GUI_CONTAINER_ELEMENT(gui, TSMS_GUI_TYPE_GUI, TSMS_CONTAINER_preRender, TSMS_CONTAINER_render, style, gui, true)
 	gui->display = display;
 	gui->list = TSMS_LIST_create(10);
 	gui->touchableList = TSMS_LIST_create(10);

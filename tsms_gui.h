@@ -30,7 +30,7 @@
 	TSMS_ILP points; \
 	double lastUpdate;
 
-#define TSMS_GUI_STYLE_RENDER \
+#define TSMS_GUI_STYLE_RENDER(element) \
 if (style.position == TSMS_STYLE_POSITION_ABSOLUTE) { \
 uint16_t screenHeight = TSMS_GUI_getGui(element)->display->screen->height; \
 x = style.left == TSMS_STYLE_AUTO ? 0 : style.left; \
@@ -38,6 +38,36 @@ y = screenHeight - style.top == TSMS_STYLE_AUTO ? screenHeight : screenHeight - 
 } \
 if (style.display == TSMS_STYLE_DISPLAY_NONE) \
 return element->grid = TSMS_GUI_calcGrid(element, style, x, y, 0, 0, parentWidth, parentHeight);
+
+#define TSMS_INIT_GUI_ELEMENT(element, type0, preRender0, render0, style0, gui0) \
+element->type = type0; \
+element->preRender = preRender0; \
+element->render = render0; \
+element->parent = TSMS_NULL; \
+element->children = TSMS_LIST_create(10); \
+element->style = TSMS_MUTABLE_STYLE_create(style0); \
+TSMS_MUTABLE_STYLE_setCallback(element->style, TSMS_GUI_defaultStyleCallback, element); \
+element->computedStyle = style0; \
+element->requestRender = true; \
+element->grid = TSMS_GUI_INVALID_GRID; \
+element->lastGrid = TSMS_GUI_INVALID_GRID; \
+element->gui = gui0; \
+element->level = 0; \
+element->renderOperations = TSMS_LIST_create(10);
+
+#define TSMS_INIT_GUI_TOUCHABLE_ELEMENT(element, type0, preRender0, render0, style0, gui0, pressCallback0, pressHandler0, releaseCallback0, releaseHandler0, longPressCallback0, longPressHandler0, doublePressCallback0, doublePressHandler0) \
+TSMS_INIT_GUI_ELEMENT(element, type0, preRender0, render0, style0, gui0)   \
+element->pressCallback = pressCallback0;  \
+element->pressHandler = pressHandler0; \
+element->releaseCallback = releaseCallback0; \
+element->releaseHandler = releaseHandler0; \
+element->longPressCallback = longPressCallback0; \
+element->longPressHandler = longPressHandler0; \
+element->doublePressCallback = doublePressCallback0; \
+element->doublePressHandler = doublePressHandler0; \
+element->press = 0; \
+element->points = TSMS_INT_LIST_create(1); \
+element->lastUpdate = 0;\
 
 #define TSMS_PRESS_STATE_PRESS 1
 #define TSMS_PRESS_STATE_LONG_PRESS 2

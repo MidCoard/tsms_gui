@@ -3,7 +3,7 @@
 TSMS_INLINE TSMS_GRID_INFO __tsms_internal_column_pre_render(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight) {
 	pColumn column = element;
 	TSMS_STYLE style = TSMS_STYLE_getStyle(element);
-	TSMS_GUI_STYLE_RENDER
+	TSMS_GUI_STYLE_RENDER(element)
 	uint16_t elementWidth = TSMS_STYLE_elementWidth(style, parentWidth);
 	uint16_t elementHeight = TSMS_STYLE_elementHeight(style, parentHeight);
 	int relativeCount = 0;
@@ -42,22 +42,7 @@ pColumn TSMS_COLUMN_createWithStyle(TSMS_STYLE style) {
 		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
-	column->type = TSMS_GUI_TYPE_COLUMN;
-	column->preRender = __tsms_internal_column_pre_render;
-	column->render = TSMS_CONTAINER_render;
-	column->parent = TSMS_NULL;
-	column->children = TSMS_LIST_create(10);
-	column->style = TSMS_MUTABLE_STYLE_create(style);
-	TSMS_MUTABLE_STYLE_setCallback(column->style, TSMS_GUI_defaultStyleCallback, column);
-	column->computedStyle = style;
-	column->requestRender = true;
-	column->grid = TSMS_GUI_INVALID_GRID;
-	column->lastGrid = TSMS_GUI_INVALID_GRID;
-	column->gui = TSMS_NULL;
-	column->level = 0;
-	column->renderOperations = TSMS_LIST_create(10);
-	column->ignoreInvalidGrid = true;
-
+	TSMS_INIT_GUI_CONTAINER_ELEMENT(column, TSMS_GUI_TYPE_COLUMN, __tsms_internal_column_pre_render, TSMS_CONTAINER_render, style, TSMS_NULL, true);
 	column->list = TSMS_INT_LIST_create(10);
 	return column;
 }

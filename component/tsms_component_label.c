@@ -16,41 +16,7 @@ pLabel TSMS_LABEL_createWithStyle(TSMS_STYLE style, pText text) {
 		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
-	label->type = TSMS_GUI_TYPE_TOUCHABLE;
-	label->preRender = TSMS_CONTAINER_preRender;
-	label->render = TSMS_CONTAINER_render;
-	label->parent = TSMS_NULL;
-	label->children = TSMS_LIST_create(1);
-	label->style = TSMS_MUTABLE_STYLE_create(style);
-	TSMS_MUTABLE_STYLE_setCallback(label->style, TSMS_GUI_defaultStyleCallback, label);
-	label->computedStyle = style;
-	label->requestRender = true;
-	label->grid = TSMS_GUI_INVALID_GRID;
-	label->lastGrid = TSMS_GUI_INVALID_GRID;
-	label->gui = TSMS_NULL;
-	label->level = 0;
-	label->renderOperations = TSMS_LIST_create(10);
-
-	label->releaseCallback = __tsms_internal_label_release;
-	label->releaseHandler = label;
-
-	label->pressCallback = __tsms_internal_label_press;
-	label->pressHandler = label;
-
-	label->longPressCallback = TSMS_NULL;
-	label->longPressHandler = TSMS_NULL;
-
-	label->doublePressCallback = TSMS_NULL;
-	label->doublePressHandler = TSMS_NULL;
-	label->press = 0;
-	label->points = TSMS_INT_LIST_create(1);
-	label->lastUpdate = 0;
-
-	label->callback = TSMS_NULL;
-	label->handler = TSMS_NULL;
-	label->text = text;
-
-	TSMS_GUI_add(label, text);
+	TSMS_INIT_GUI_LABEL_ELEMENT(label, TSMS_GUI_TYPE_TOUCHABLE, TSMS_CONTAINER_preRender, TSMS_CONTAINER_render, style, TSMS_NULL, __tsms_internal_label_press, label, __tsms_internal_label_release, label, TSMS_NULL, TSMS_NULL, TSMS_NULL, TSMS_NULL, text)
 	return label;
 }
 

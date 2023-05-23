@@ -4,7 +4,7 @@
 TSMS_INLINE TSMS_GRID_INFO __tsms_internal_row_pre_render(pGuiElement element, uint16_t x, uint16_t y, uint16_t parentWidth, uint16_t parentHeight) {
 	pRow row = element;
 	TSMS_STYLE style = TSMS_STYLE_getStyle(element);
-	TSMS_GUI_STYLE_RENDER
+	TSMS_GUI_STYLE_RENDER(element)
 	uint16_t elementWidth = TSMS_STYLE_elementWidth(style, parentWidth);
 	uint16_t elementHeight = TSMS_STYLE_elementHeight(style, parentHeight);
 	int relativeCount = 0;
@@ -43,23 +43,7 @@ pRow TSMS_ROW_createWithStyle(TSMS_STYLE style) {
 		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
-
-	row->type = TSMS_GUI_TYPE_ROW;
-	row->preRender = __tsms_internal_row_pre_render;
-	row->render = TSMS_CONTAINER_render;
-	row->parent = TSMS_NULL;
-	row->children = TSMS_LIST_create(10);
-	row->style = TSMS_MUTABLE_STYLE_create(style);
-	TSMS_MUTABLE_STYLE_setCallback(row->style, TSMS_GUI_defaultStyleCallback, row);
-	row->computedStyle = style;
-	row->requestRender = true;
-	row->grid = TSMS_GUI_INVALID_GRID;
-	row->lastGrid = TSMS_GUI_INVALID_GRID;
-	row->gui = TSMS_NULL;
-	row->level = 0;
-	row->renderOperations = TSMS_LIST_create(10);
-	row->ignoreInvalidGrid = true;
-
+	TSMS_INIT_GUI_CONTAINER_ELEMENT(row, TSMS_GUI_TYPE_ROW, __tsms_internal_row_pre_render, TSMS_CONTAINER_render, style, TSMS_NULL, true);
 	row->list = TSMS_INT_LIST_create(10);
 	return row;
 }
