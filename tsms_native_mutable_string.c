@@ -1,4 +1,5 @@
 #include "tsms_native_mutable_string.h"
+#include "tsms.h"
 
 TSMS_INLINE void __tsms_internal_native_callback(pNativeMutable nativeMutable, void * buffer, void * handler) {
 	pNativeMutableString nativeMutableString = (pNativeMutableString)handler;
@@ -23,19 +24,21 @@ TSMS_INLINE void __tsms_internal_str_callback(pNativeMutable nativeMutable, void
 }
 
 pNativeMutableString TSMS_NATIVE_MUTABLE_STRING_create(pString str) {
-	pNativeMutableString nativeMutableString = malloc(sizeof(tNativeMutableString));
-	if (nativeMutableString == TSMS_NULL) {
-		tString temp = TSMS_STRING_temp("malloc failed for nativeMutableString");
-		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
+	if (str == TSMS_NULL)
 		return TSMS_NULL;
-	}
+	pNativeMutableString nativeMutableString = TSMS_malloc(sizeof(tNativeMutableString));
+	if (nativeMutableString == TSMS_NULL)
+		return TSMS_NULL;
 	nativeMutableString->native = TSMS_NATIVE_MUTABLE_create(str, sizeof (tString));
-	TSMS_NATIVE_MUTABLE_setCallback(nativeMutableString->native, __tsms_internal_native_callback, nativeMutableString);
 	nativeMutableString->str = TSMS_NATIVE_MUTABLE_create(str->cStr, str->length + 1);
+	TSMS_NATIVE_MUTABLE_setCallback(nativeMutableString->native, __tsms_internal_native_callback, nativeMutableString);
 	TSMS_NATIVE_MUTABLE_setCallback(nativeMutableString->str, __tsms_internal_str_callback, nativeMutableString);
-
 	nativeMutableString->callback = TSMS_NULL;
 	nativeMutableString->handler = TSMS_NULL;
+	if (nativeMutableString->native == TSMS_NULL || nativeMutableString->str == TSMS_NULL) {
+		TSMS_NATIVE_MUTABLE_STRING_release(nativeMutableString);
+		return TSMS_NULL;
+	}
 	return nativeMutableString;
 }
 

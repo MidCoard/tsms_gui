@@ -19,13 +19,14 @@ TSMS_INLINE void __tsms_internal_button_release(pGuiTouchableElement element, ui
 }
 
 pButton TSMS_BUTTON_createWithStyle(TSMS_STYLE style, pText text) {
-	pButton button = (pButton) malloc(sizeof(tButton));
-	if (button == TSMS_NULL) {
-		tString temp = TSMS_STRING_temp("malloc failed for guiButton");
-		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
+	pButton button = (pButton) TSMS_malloc(sizeof(tButton));
+	if (button == TSMS_NULL)
+		return TSMS_NULL;
+	TSMS_INIT_GUI_LABEL_ELEMENT(button, TSMS_GUI_TYPE_TOUCHABLE, TSMS_CONTAINER_preRender, TSMS_CONTAINER_render, style, TSMS_NULL, __tsms_internal_button_press, button, __tsms_internal_button_release, button, TSMS_NULL, TSMS_NULL, TSMS_NULL, TSMS_NULL, text)
+	if (button->style == TSMS_NULL || button->children == TSMS_NULL || button->renderOperations == TSMS_NULL || button->points == TSMS_NULL) {
+		TSMS_BUTTON_release(button);
 		return TSMS_NULL;
 	}
-	TSMS_INIT_GUI_LABEL_ELEMENT(button, TSMS_GUI_TYPE_TOUCHABLE, TSMS_CONTAINER_preRender, TSMS_CONTAINER_render, style, TSMS_NULL, __tsms_internal_button_press, button, __tsms_internal_button_release, button, TSMS_NULL, TSMS_NULL, TSMS_NULL, TSMS_NULL, text)
 	return button;
 }
 

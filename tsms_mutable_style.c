@@ -1,12 +1,10 @@
 #include "tsms_mutable_style.h"
+#include "tsms.h"
 
 pMutableStyle TSMS_MUTABLE_STYLE_create(TSMS_STYLE style) {
-	pMutableStyle mutableStyle = (pMutableStyle)malloc(sizeof(tMutableStyle));
-	if (mutableStyle == TSMS_NULL) {
-		tString temp = TSMS_STRING_temp("malloc failed for mutable style");
-		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
+	pMutableStyle mutableStyle = (pMutableStyle) TSMS_malloc(sizeof(tMutableStyle));
+	if (mutableStyle == TSMS_NULL)
 		return TSMS_NULL;
-	}
 	mutableStyle->style = style;
 	mutableStyle->callback = TSMS_NULL;
 	mutableStyle->handler = TSMS_NULL;

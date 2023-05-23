@@ -36,14 +36,15 @@ pColumn TSMS_COLUMN_create() {
 }
 
 pColumn TSMS_COLUMN_createWithStyle(TSMS_STYLE style) {
-	pColumn column = (pColumn)malloc(sizeof(tColumn));
-	if (column == TSMS_NULL) {
-		tString temp = TSMS_STRING_temp("malloc failed for guiColumn");
-		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
+	pColumn column = (pColumn)TSMS_malloc(sizeof(tColumn));
+	if (column == TSMS_NULL)
 		return TSMS_NULL;
-	}
 	TSMS_INIT_GUI_CONTAINER_ELEMENT(column, TSMS_GUI_TYPE_COLUMN, __tsms_internal_column_pre_render, TSMS_CONTAINER_render, style, TSMS_NULL, true);
 	column->list = TSMS_INT_LIST_create(10);
+	if (column->style == TSMS_NULL || column->children == TSMS_NULL || column->renderOperations == TSMS_NULL || column->list == TSMS_NULL) {
+		TSMS_COLUMN_release(column);
+		return TSMS_NULL;
+	}
 	return column;
 }
 

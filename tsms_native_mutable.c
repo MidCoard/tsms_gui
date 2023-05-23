@@ -1,4 +1,5 @@
 #include "tsms_native_mutable.h"
+#include "tsms.h"
 
 static TSMS_LP _nativeMutableList = TSMS_NULL;
 
@@ -8,23 +9,18 @@ TSMS_RESULT TSMS_NATIVE_MUTABLE_init() {
 }
 
 pNativeMutable TSMS_NATIVE_MUTABLE_create(void * data, TSMS_SIZE size) {
-	pNativeMutable nativeMutable = (pNativeMutable) malloc(sizeof(tNativeMutable));
-	if (nativeMutable == TSMS_NULL) {
-		tString temp = TSMS_STRING_temp("malloc failed for native mutable");
-		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
+	pNativeMutable nativeMutable = (pNativeMutable) TSMS_malloc(sizeof(tNativeMutable));
+	if (nativeMutable == TSMS_NULL)
 		return TSMS_NULL;
-	}
+	TSMS_LIST_add(_nativeMutableList, nativeMutable);
 	nativeMutable->data = data;
 	nativeMutable->size = size;
-	nativeMutable->buffer = malloc(size);
+	nativeMutable->buffer = TSMS_malloc(size);
 	if (nativeMutable->buffer == TSMS_NULL) {
 		TSMS_NATIVE_MUTABLE_release(nativeMutable);
-		tString temp = TSMS_STRING_temp("malloc failed for native mutable buffer");
-		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
 		return TSMS_NULL;
 	}
 	memcpy(nativeMutable->buffer, data, size);
-	TSMS_LIST_add(_nativeMutableList, nativeMutable);
 	return nativeMutable;
 }
 

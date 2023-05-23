@@ -8,7 +8,9 @@ struct _textGridInfo {
 };
 
 TSMS_INLINE struct _textGridInfo* __tsms_internal_create_text_grid_info(uint16_t x, uint16_t y) {
-	struct _textGridInfo* info = malloc(sizeof(struct _textGridInfo));
+	struct _textGridInfo* info = TSMS_malloc(sizeof(struct _textGridInfo));
+	if (info == TSMS_NULL)
+		return TSMS_NULL;
 	info->x = x;
 	info->y = y;
 	return info;
@@ -85,19 +87,18 @@ TSMS_INLINE void __tsms_internal_text_callback(pNativeMutableString mutable, voi
 }
 
 pText TSMS_TEXT_createWithStyle(TSMS_STYLE style, pString text) {
-	pText t = (pText) malloc(sizeof(tText));
-	if (t == TSMS_NULL){
-		tString temp = TSMS_STRING_temp("malloc failed for guiText");
-		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
+	pText t = (pText) TSMS_malloc(sizeof(tText));
+	if (t == TSMS_NULL)
 		return TSMS_NULL;
-	}
-
 	TSMS_INIT_GUI_ELEMENT(t, TSMS_GUI_TYPE_TEXT, __tsms_internal_text_pre_render, __tsms_internal_text_render, style, TSMS_NULL);
-
 	t->_native = TSMS_NATIVE_MUTABLE_STRING_create(text);
 	TSMS_NATIVE_MUTABLE_STRING_setCallback(t->_native, __tsms_internal_text_callback, t);
 	t->text = text;
 	t->list = TSMS_LIST_create(10);
+	if (t->style == TSMS_NULL || t->renderOperations == TSMS_NULL || t->_native == TSMS_NULL || t->list == TSMS_NULL) {
+		TSMS_TEXT_release(t);
+		return TSMS_NULL;
+	}
 	return t;
 }
 
@@ -109,8 +110,9 @@ TSMS_RESULT TSMS_TEXT_release(pText text) {
 	if (text == TSMS_NULL)
 		return TSMS_ERROR;
 	TSMS_NATIVE_MUTABLE_STRING_release(text->_native);
-	for (TSMS_POS i = 0; i < text->list->length; i++)
-		free(text->list->list[i]);
+	if (text->list != TSMS_NULL)
+		for (TSMS_POS i = 0; i < text->list->length; i++)
+			free(text->list->list[i]);
 	TSMS_LIST_release(text->list);
 	return TSMS_GUI_releaseGuiElement(text);
 }

@@ -37,14 +37,15 @@ pRow TSMS_ROW_create() {
 }
 
 pRow TSMS_ROW_createWithStyle(TSMS_STYLE style) {
-	pRow row = malloc(sizeof(tRow));
-	if (row == TSMS_NULL) {
-		tString temp = TSMS_STRING_temp("malloc failed for guiRow");
-		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
+	pRow row = TSMS_malloc(sizeof(tRow));
+	if (row == TSMS_NULL)
 		return TSMS_NULL;
-	}
 	TSMS_INIT_GUI_CONTAINER_ELEMENT(row, TSMS_GUI_TYPE_ROW, __tsms_internal_row_pre_render, TSMS_CONTAINER_render, style, TSMS_NULL, true);
 	row->list = TSMS_INT_LIST_create(10);
+	if (row->style == TSMS_NULL || row->children == TSMS_NULL || row->renderOperations == TSMS_NULL || row->list == TSMS_NULL) {
+		TSMS_ROW_release(row);
+		return TSMS_NULL;
+	}
 	return row;
 }
 

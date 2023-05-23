@@ -210,12 +210,9 @@ TSMS_GRID_INFO TSMS_GUI_calcGrid(pGuiElement element, TSMS_STYLE style, uint16_t
 }
 
 pGui TSMS_GUI_create(TSMS_DPHP display) {
-	pGui gui = (pGui) malloc(sizeof(tGui));
-	if (gui == TSMS_NULL) {
-		tString temp = TSMS_STRING_temp("malloc failed for gui");
-		TSMS_ERR_report(TSMS_ERROR_TYPE_MALLOC_FAILED, &temp);
+	pGui gui = (pGui) TSMS_malloc(sizeof(tGui));
+	if (gui == TSMS_NULL)
 		return TSMS_NULL;
-	}
 	TSMS_STYLE style = TSMS_STYLE_DEFAULT;
 	style.width = display->screen->width;
 	style.height = display->screen->height;
@@ -225,6 +222,10 @@ pGui TSMS_GUI_create(TSMS_DPHP display) {
 	gui->touchableList = TSMS_LIST_create(10);
 	gui->lock = TSMS_LOCK_create();
 	TSMS_TOUCH_setCallback(display->touch, __tsms_internal_touch_callback, gui);
+	if (gui->style == TSMS_NULL || gui->children == TSMS_NULL || gui->renderOperations == TSMS_NULL || gui->list == TSMS_NULL || gui->touchableList == TSMS_NULL || gui->lock == TSMS_NULL) {
+		TSMS_GUI_release(gui);
+		return TSMS_NULL;
+	}
 	return gui;
 }
 
@@ -467,10 +468,16 @@ bool TSMS_GUI_equalsGrid(TSMS_GRID_INFO grid1, TSMS_GRID_INFO grid2) {
 }
 
 pRenderOperation TSMS_GUI_createCharRenderOperation(uint16_t x, uint16_t y, TSMS_FONT_TYPE fontType, void *font, char c, TSMS_FONT_SIZE size) {
-	pRenderOperation operation = malloc(sizeof(tRenderOperation));
+	pRenderOperation operation = TSMS_malloc(sizeof(tRenderOperation));
+	if (operation == TSMS_NULL)
+		return TSMS_NULL;
 	operation->type = TSMS_RENDER_OPERATION_TYPE_CHAR;
 	operation->size = sizeof(uint16_t) + sizeof(uint16_t) + sizeof(TSMS_FONT_TYPE) + sizeof(void *) + sizeof(char) + sizeof(TSMS_FONT_SIZE);
-	operation->data = malloc(operation->size);
+	operation->data = TSMS_malloc(operation->size);
+	if (operation->data == TSMS_NULL) {
+		free(operation);
+		return TSMS_NULL;
+	}
 	uint16_t offset = 0;
 	memcpy(operation->data + offset, &x, sizeof(uint16_t));
 	offset += sizeof(uint16_t);
@@ -487,10 +494,16 @@ pRenderOperation TSMS_GUI_createCharRenderOperation(uint16_t x, uint16_t y, TSMS
 }
 
 pRenderOperation TSMS_GUI_createFillRectRenderOperation(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
-	pRenderOperation operation = malloc(sizeof(tRenderOperation));
+	pRenderOperation operation = TSMS_malloc(sizeof(tRenderOperation));
+	if (operation == TSMS_NULL)
+		return TSMS_NULL;
 	operation->type = TSMS_RENDER_OPERATION_TYPE_FILL_RECT;
 	operation->size = sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint16_t);
-	operation->data = malloc(operation->size);
+	operation->data = TSMS_malloc(operation->size);
+	if (operation->data == TSMS_NULL) {
+		free(operation);
+		return TSMS_NULL;
+	}
 	uint16_t offset = 0;
 	memcpy(operation->data + offset, &x, sizeof(uint16_t));
 	offset += sizeof(uint16_t);
@@ -544,13 +557,14 @@ TSMS_RESULT TSMS_GUI_releaseRenderOperation(pRenderOperation operation) {
 TSMS_RESULT TSMS_GUI_releaseGuiElement(pGuiElement element) {
 	if (element == TSMS_NULL)
 		return TSMS_ERROR;
-	TSMS_LIST_release(element->children);
-	for (TSMS_POS i = 0; i < element->renderOperations->length; i++) {
-		pRenderOperation operation = element->renderOperations->list[i];
-		TSMS_GUI_releaseRenderOperation(operation);
-	}
-	TSMS_LIST_release(element->renderOperations);
 	TSMS_MUTABLE_STYLE_release(element->style);
+	TSMS_LIST_release(element->children);
+	if (element->renderOperations != TSMS_NULL)
+		for (TSMS_POS i = 0; i < element->renderOperations->length; i++) {
+			pRenderOperation operation = element->renderOperations->list[i];
+			TSMS_GUI_releaseRenderOperation(operation);
+		}
+	TSMS_LIST_release(element->renderOperations);
 	free(element);
 	return TSMS_SUCCESS;
 }
