@@ -19,6 +19,7 @@ struct TSMS_HTML_NODE {
 	TSMS_MP attributes;
 	TSMS_LP children;
 	pString tag;
+	pHtmlNode parent;
 };
 
 pHtml TSMS_HTML_parse(pString html);

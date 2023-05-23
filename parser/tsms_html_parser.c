@@ -3,6 +3,14 @@
 
 TSMS_INLINE void __tsms_internal_release_node(pHtmlNode node) {
 	TSMS_STRING_release(node->tag);
+	if (node->attributes != TSMS_NULL) {
+		TSMS_MI it = TSMS_MAP_iterator(node->attributes);
+		while (TSMS_MAP_hasNext(&it)) {
+			TSMS_ME entry = TSMS_MAP_next(&it);
+			TSMS_STRING_release(entry.key);
+			TSMS_STRING_release(entry.value);
+		}
+	}
 	TSMS_MAP_release(node->attributes);
 	if (node->children != TSMS_NULL)
 		for (TSMS_POS i = 0; i < node->children->length; i++)
@@ -24,10 +32,102 @@ TSMS_INLINE pHtmlNode __tsms_internal_create_node(pString tag) {
 	node->attributes = TSMS_MAP_create(16, (TSMS_HASH_FUNCTION) TSMS_STRING_hash,
 	                                   (TSMS_COMPARE_FUNCTION) TSMS_STRING_compare);
 	node->children = TSMS_LIST_create(10);
+	node->parent = TSMS_NULL;
 	if (node->children == TSMS_NULL || node->attributes == TSMS_NULL) {
 		__tsms_internal_release_node(node);
 		return TSMS_NULL;
 	}
+	return node;
+}
+
+TSMS_INLINE pHtmlNode __tsms_internal_parse_node(pString tagValue) {
+	pString temp = TSMS_STRING_create();
+	bool inQuote = false;
+	bool inEscape = false;
+	TSMS_LP list = TSMS_LIST_create(10);
+	for (TSMS_POS i = 0; i < tagValue->length; i++) {
+		char c = tagValue->cStr[i];
+		if (inEscape) {
+			switch (c) {
+				case '\'':
+				case '"':
+				case '\\':
+					TSMS_STRING_appendChar(temp, c);
+					break;
+				case 'n':
+					TSMS_STRING_appendChar(temp, '\n');
+					break;
+				case 'r':
+					TSMS_STRING_appendChar(temp, '\r');
+					break;
+				case 't':
+					TSMS_STRING_appendChar(temp, '\t');
+					break;
+				case 'b':
+					TSMS_STRING_appendChar(temp, '\b');
+					break;
+				case 'f':
+					TSMS_STRING_appendChar(temp, '\f');
+					break;
+				case 'v':
+					TSMS_STRING_appendChar(temp, '\v');
+					break;
+				case '0':
+					TSMS_STRING_appendChar(temp, '\0');
+					break;
+				case 'a':
+					TSMS_STRING_appendChar(temp, '\a');
+					break;
+				default:
+					TSMS_STRING_appendChar(temp, c);
+					break;
+			}
+			inEscape = false;
+		} else if (c == '"') {
+			inQuote = !inQuote;
+		} else if (inQuote) {
+			TSMS_STRING_appendChar(temp, c);
+		} else if (c == ' ') {
+			TSMS_LIST_add(list, TSMS_STRING_clone(temp));
+			TSMS_STRING_clear(temp);
+		} else if (c == '\\') {
+			inEscape = true;
+		} else {
+			TSMS_STRING_appendChar(temp, c);
+		}
+	}
+	if (inQuote || inEscape) {
+		TSMS_STRING_release(temp);
+		for (TSMS_POS i = 0; i < list->length; i++)
+			TSMS_STRING_release(list->list[i]);
+		TSMS_LIST_release(list);
+		return TSMS_NULL;
+	}
+	if (temp->length > 0)
+		TSMS_LIST_add(list, TSMS_STRING_clone(temp));
+	TSMS_STRING_release(temp);
+	if (list->length == 0) {
+		TSMS_LIST_release(list);
+		return TSMS_NULL;
+	}
+	pHtmlNode node = __tsms_internal_create_node(list->list[0]);
+	for (TSMS_POS i = 1; i < list->length; i++) {
+		pString attribute = list->list[i];
+		TSMS_POS index = TSMS_STRING_indexOf(attribute, '=');
+		TSMS_POS quoteIndex = TSMS_STRING_indexOf(attribute, '"');
+		if (index <= quoteIndex && index != attribute->length - 1) {
+			if (index == -1) {
+				pString key = TSMS_STRING_subString(attribute, 0, attribute->length);
+				TSMS_MAP_put(node->attributes, key, TSMS_NULL);
+			} else {
+				pString key = TSMS_STRING_subString(attribute, 0, index);
+				pString value = TSMS_STRING_subString(attribute, index + 1, attribute->length);
+				TSMS_MAP_put(node->attributes, key, value);
+			}
+		}
+		TSMS_STRING_release(attribute);
+	}
+	TSMS_LIST_release(list);
 	return node;
 }
 
@@ -41,8 +141,8 @@ pHtml TSMS_HTML_parse(pString html) {
 		return TSMS_NULL;
 	}
 	pString temp = TSMS_STRING_create();
+	pHtmlNode currentNode = htmlObject->root;
 	bool inTag = false;
-	bool inValue = false;
 	bool inEscape = false;
 	bool inQuote = false;
 	for (TSMS_POS i = 0; i < html->length; i++) {
@@ -83,23 +183,53 @@ pHtml TSMS_HTML_parse(pString html) {
 					break;
 			}
 			inEscape = false;
-		} else if (!inTag && !inValue) {
-			if (c == '<')
+		} else if (c == '"') {
+			inQuote = !inQuote;
+		} else if (inQuote) {
+			TSMS_STRING_appendChar(temp, c);
+		} else if (c == '\\') {
+			inEscape = true;
+		} else if (!inTag) {
+			if (c == '<') {
+				pString trim = TSMS_STRING_trim(temp);
+				if (trim->length > 0) {
+					pHtmlNode node = __tsms_internal_create_node(TSMS_STRING_createWithString("text"));
+					TSMS_MAP_put(node->attributes, TSMS_STRING_createWithString("value"), TSMS_STRING_clone(trim));
+				}
+				TSMS_STRING_release(trim);
+				TSMS_STRING_clear(temp);
 				inTag = true;
+			} else {
+				TSMS_STRING_appendChar(temp, c);
+			}
 		} else if (inTag) {
-			if (c == '\\') {
-				inEscape = true;
-			} else if (c == '>') {
-
+			if (c == '>') {
+				pString trim = TSMS_STRING_trim(temp);
+				if (trim->length > 0) {
+					pString tag = TSMS_STRING_createWithChar('/');
+					TSMS_STRING_append(tag, currentNode->tag);
+					if (TSMS_STRING_equals(tag, trim)) {
+						if (currentNode->parent != TSMS_NULL) {
+							currentNode = currentNode->parent;
+						}
+					} else {
+						pHtmlNode node = __tsms_internal_parse_node(trim);
+						if (node != TSMS_NULL) {
+							TSMS_LIST_add(currentNode->children, node);
+							node->parent = currentNode;
+							currentNode = node;
+						}
+					}
+				}
+				TSMS_STRING_release(trim);
+				TSMS_STRING_clear(temp);
 				inTag = false;
-			} else if (c == ' ') {
-				inValue = true;
 			} else {
 				TSMS_STRING_appendChar(temp, c);
 			}
 		}
-
 	}
+	TSMS_STRING_release(temp);
 
 	return htmlObject;
 }
