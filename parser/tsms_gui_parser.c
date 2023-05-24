@@ -2,6 +2,7 @@
 #include "tsms_html_parser.h"
 #include "tsms_css_parser.h"
 #include "tsms_js_parser.h"
+#include "malloc.h"
 
 TSMS_INLINE void __tsms_internal_init_style(pHtmlNode node, TSMS_LP cssNodes) {
 	pString style = TSMS_MAP_get(node->attributes, TSMS_STRING_static("style"));
